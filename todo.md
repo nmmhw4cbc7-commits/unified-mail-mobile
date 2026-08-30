@@ -83,5 +83,5 @@
 
 ## Angegebenes GitHub-Ziel
 
-- [ ] Aktuellen lokalen Stand nach https://github.com/nmmhw4cbc7-commits/unified-mail-mobile pushen
-- [ ] Push auf dem Remote-Standardbranch verifizieren
+- [x] Aktuellen lokalen Stand nach https://github.com/nmmhw4cbc7-commits/unified-mail-mobile pushen
+- [x] Push auf dem Remote-Standardbranch verifizieren
