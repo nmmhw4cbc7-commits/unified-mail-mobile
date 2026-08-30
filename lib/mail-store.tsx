@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { messages as seedMessages, type MailMessage } from "@/lib/mail-data";
 
-const STORAGE_KEY = "unified-mail:messages:v1";
+const STORAGE_KEY = "unified-mail:messages:v2";
 
 type MailStoreValue = {
   messages: MailMessage[];

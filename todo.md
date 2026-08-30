@@ -13,3 +13,25 @@
 - [x] Tests für Mail-Filterung und Suche (Compose-Zustand folgt mit echter Versandlogik)
 - [x] Qualitätsprüfung TypeScript und Datentests (manueller Gerätescan und Lint folgen)
 - [ ] Reale OAuth-/IMAP-/SMTP-Anbindung als nächster Integrationsschritt nach Bereitstellung der Provider-Konfiguration
+
+## Erweiterung: Ready-to-use und Flutter-Migration
+
+- [ ] Provider-OAuth-Konfigurationen und sichere Secret-Verwaltung für Gmail/Microsoft 365
+- [ ] Backend-Konto-Modell und verschlüsselte Token-Ablage
+- [ ] Backend-Synchronisation für Nachrichten, Ordner, Labels und Lesestatus
+- [ ] Reale Versand-API und Provider-spezifische Fehlerbehandlung
+- [ ] Anhänge sicher hochladen, herunterladen und anzeigen
+- [ ] Push-Benachrichtigungen und Hintergrund-Synchronisation
+- [ ] Account-Verbindungsflow mit OAuth-Callback und IMAP/SMTP-Alternative
+- [ ] Produktions-Umgebungsvariablen, Datenschutz- und Sicherheitsdokumentation
+- [ ] Vollständige Testabdeckung für Provider-Adapter, Sync und Versand
+- [ ] GitHub-ready README, CONTRIBUTING, LICENSE, .env.example und CI-Konfiguration
+- [ ] Flutter/Dart-Migrationsplan mit API-Verträgen, Datenmodellen und Screen-Mapping
+- [ ] GitHub-Repository verbinden und Code pushen, sobald Repository-URL und Schreibzugriff verfügbar sind
+
+## Korrektur: Nutzerkonten statt Demo-Daten
+
+- [x] Keine hardcodierten Konten im initialen App-Zustand
+- [x] Keine Beispiel-Mails bei erstmaligem App-Start
+- [x] Leerer Inbox-Zustand mit Konto-verbinden-Onboarding
+- [x] Tests für Nutzer ohne verbundene Konten und leere Mail-Liste

@@ -12,16 +12,18 @@ export default function ComposeScreen() {
   const colors = useColors();
   const params = useLocalSearchParams<{ replyTo?: string; subject?: string }>();
   const { addSentMessage } = useMailStore();
-  const [from, setFrom] = useState(accounts[0].email);
+  const [from, setFrom] = useState(accounts[0]?.email ?? "");
   const [to, setTo] = useState(params.replyTo ?? "");
   const [subject, setSubject] = useState(params.subject ?? "");
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const send = () => {
+    if (accounts.length === 0 || !from) { Alert.alert("Kein Postfach verbunden", "Verbinde zuerst ein E-Mail-Konto, bevor du eine Nachricht verfasst."); return; }
     if (!validateComposeFields(to, subject, body)) { Alert.alert("Noch nicht vollständig", "Bitte ergänze Empfänger, Betreff und Nachricht."); return; }
     setSending(true);
     setTimeout(() => {
-      const account = accounts.find((item) => item.email === from) ?? accounts[0];
+      const account = accounts.find((item) => item.email === from);
+      if (!account) { setSending(false); return; }
       addSentMessage({ id: `sent-${Date.now()}`, accountId: account.id, senderName: "Du", senderEmail: from, recipients: [to.trim()], subject: subject.trim(), preview: body.trim(), body: body.trim(), timestamp: "Jetzt", dateLabel: "Heute", unread: false, starred: false });
       setSending(false);
       Alert.alert("Gesendet", `Deine Nachricht wurde über ${from} versendet.`, [{ text: "OK", onPress: () => router.back() }]);
