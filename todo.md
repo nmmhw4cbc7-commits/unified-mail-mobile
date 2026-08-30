@@ -80,3 +80,8 @@
 - [ ] Vollständigen aktuellen App-Code pushen
 - [ ] Tatsächlich verwendete Google-Redirect-URI und Client-Konfiguration verifizieren
 - [ ] Repository-Link und verbleibende Google-Cloud-Einstellung liefern
+
+## Angegebenes GitHub-Ziel
+
+- [ ] Aktuellen lokalen Stand nach https://github.com/nmmhw4cbc7-commits/unified-mail-mobile pushen
+- [ ] Push auf dem Remote-Standardbranch verifizieren
