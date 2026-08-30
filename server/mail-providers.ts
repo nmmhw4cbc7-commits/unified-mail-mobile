@@ -2,7 +2,7 @@ import { createMailOAuthState } from "./mail-security";
 
 export type MailProvider = "gmail" | "outlook";
 
-function getRedirectUri(req: { protocol: string; get: (name: string) => string | undefined }) {
+export function getRedirectUri(req: { protocol: string; get: (name: string) => string | undefined }) {
   const forwardedProto = req.get("x-forwarded-proto") ?? req.protocol;
   const forwardedHost = req.get("x-forwarded-host") ?? req.get("host");
   if (!forwardedHost) throw new Error("OAuth redirect host is unavailable");

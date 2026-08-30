@@ -85,3 +85,12 @@
 
 - [x] Aktuellen lokalen Stand nach https://github.com/nmmhw4cbc7-commits/unified-mail-mobile pushen
 - [x] Push auf dem Remote-Standardbranch verifizieren
+
+## Prompt-Ausführung: Build, OAuth und Erststart
+
+- [x] Produktions-Build lokal reproduzieren und Vercel-Serverless-Struktur ergänzen
+- [x] Tatsächlich verwendete Google-Redirect-URI und Client-Konfiguration konsolidieren
+- [x] Keine drei hardcodierten Konten in Inbox, Kontenansicht oder Store
+- [x] Keine Beispielnachrichten im Erststart inklusive AsyncStorage-Migration
+- [x] Inbox-Logo links, Account-Aktion rechts und zentraler Empty State verifizieren
+- [ ] Alle Prüfungen ausführen und geprüften Stand nach GitHub pushen

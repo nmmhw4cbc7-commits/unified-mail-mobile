@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { messages as seedMessages, type MailMessage } from "@/lib/mail-data";
+import type { MailMessage } from "@/lib/mail-data";
 
 const STORAGE_KEY = "unified-mail:messages:v2";
 
@@ -14,13 +14,13 @@ type MailStoreValue = {
 const MailStoreContext = createContext<MailStoreValue | null>(null);
 
 export function MailStoreProvider({ children }: { children: ReactNode }) {
-  const [mailMessages, setMailMessages] = useState<MailMessage[]>(seedMessages);
+  const [mailMessages, setMailMessages] = useState<MailMessage[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
       if (raw) {
-        try { setMailMessages(JSON.parse(raw) as MailMessage[]); } catch { /* Keep seed data when storage is invalid. */ }
+        try { setMailMessages(JSON.parse(raw) as MailMessage[]); } catch { setMailMessages([]); }
       }
       setHydrated(true);
     }).catch(() => setHydrated(true));

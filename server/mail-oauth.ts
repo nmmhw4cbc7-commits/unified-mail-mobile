@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { encryptToken, verifyMailOAuthState } from "./mail-security";
 import { upsertMailAccount } from "./db";
-import type { MailProvider } from "./mail-providers";
+import { getRedirectUri, type MailProvider } from "./mail-providers";
 
 async function exchangeCode(provider: MailProvider, code: string, redirectUri: string) {
   const isGoogle = provider === "gmail";
@@ -33,10 +33,7 @@ export function registerMailOAuthRoutes(app: Express) {
       if (error) return res.status(400).send(`Provider-Anmeldung abgebrochen: ${error}`);
       if (!code || !state) return res.status(400).send("OAuth-Callback benötigt code und state.");
       const claims = await verifyMailOAuthState(state);
-      const protocol = req.get("x-forwarded-proto") ?? req.protocol;
-      const host = req.get("x-forwarded-host") ?? req.get("host");
-      if (!host) return res.status(400).send("OAuth-Host fehlt.");
-      const redirectUri = `${protocol}://${host}/api/mail/oauth/callback`;
+      const redirectUri = getRedirectUri(req);
       const token = await exchangeCode(claims.provider, code, redirectUri);
       const profile = await getProfile(claims.provider, token.access_token);
       if (!profile.email) return res.status(400).send("Provider hat keine E-Mail-Adresse zurückgegeben.");
