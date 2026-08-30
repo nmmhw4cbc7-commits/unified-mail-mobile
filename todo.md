@@ -61,3 +61,13 @@
 - [x] OAuth-Callback für Google und Outlook ohne unverständlichen Login-Fehler abschließen
 - [ ] Mobile Rückkehr nach erfolgreicher Verbindung und Kontenaktualisierung herstellen
 - [ ] Regressionstest für nicht angemeldeten Erststart und Fehler 1001 ergänzen
+
+## Google-Redirect, Provider und Inbox-Empty-State
+
+- [x] Google OAuth Redirect-URI auf eine registrierbare, stabile URL umstellen
+- [x] Google-, Outlook-, iCloud- und andere-Anbieter-Status verständlich darstellen
+- [x] iCloud-/generischen Anbieterfluss nicht als fälschlich fertige Verbindung anzeigen
+- [x] Logo oben links in der Inbox sichtbar machen
+- [x] Account-Button oben rechts mit Kontenansicht und Statusfunktion verbinden
+- [x] Empty State zentral ausrichten und visuell ausarbeiten
+- [x] Tests und Lint nach den Korrekturen geprüft; Preview-Server war beim Screenshot-Lauf nicht erreichbar

@@ -10,15 +10,15 @@ import { getDeviceId } from "@/lib/device-identity";
 const providers = [
   { id: "gmail", name: "Gmail", detail: "Google-Konto verbinden", color: "#E95C5C", icon: "G" },
   { id: "outlook", name: "Outlook", detail: "Microsoft 365 oder Outlook.com", color: "#3A78D4", icon: "O" },
-  { id: "icloud", name: "iCloud Mail", detail: "Apple Mail-Adresse", color: "#8B72D8", icon: "i" },
-  { id: "imap", name: "Anderer Anbieter", detail: "IMAP / SMTP manuell einrichten", color: "#26A69A", icon: "@" },
+  { id: "icloud", name: "iCloud", detail: "Noch nicht verfügbar", color: "#8B72D8", icon: "i" },
+  { id: "imap", name: "Anderer Anbieter", detail: "IMAP/SMTP folgt", color: "#26A69A", icon: "@" },
 ];
 
 export default function AddAccountScreen() {
   const colors = useColors();
   const oauthStart = trpc.mail.oauthStart.useMutation();
   const choose = async (providerId: string, name: string) => {
-    if (providerId !== "gmail" && providerId !== "outlook") { Alert.alert("In Vorbereitung", `${name} wird als nächster Provider über IMAP/SMTP ergänzt.`); return; }
+    if (providerId !== "gmail" && providerId !== "outlook") { Alert.alert("Noch nicht verfügbar", `${name} ist in dieser Version noch nicht verbunden. Gmail und Outlook sind aktuell verfügbar.`); return; }
     try {
       const deviceId = await getDeviceId();
       const result = await oauthStart.mutateAsync({ provider: providerId, deviceId });
