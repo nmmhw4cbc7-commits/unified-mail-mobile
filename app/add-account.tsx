@@ -5,6 +5,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { trpc } from "@/lib/trpc";
 import * as WebBrowser from "expo-web-browser";
+import { getDeviceId } from "@/lib/device-identity";
 
 const providers = [
   { id: "gmail", name: "Gmail", detail: "Google-Konto verbinden", color: "#E95C5C", icon: "G" },
@@ -19,10 +20,11 @@ export default function AddAccountScreen() {
   const choose = async (providerId: string, name: string) => {
     if (providerId !== "gmail" && providerId !== "outlook") { Alert.alert("In Vorbereitung", `${name} wird als nächster Provider über IMAP/SMTP ergänzt.`); return; }
     try {
-      const result = await oauthStart.mutateAsync({ provider: providerId });
+      const deviceId = await getDeviceId();
+      const result = await oauthStart.mutateAsync({ provider: providerId, deviceId });
       await WebBrowser.openBrowserAsync(result.authorizationUrl);
     } catch (error) {
-      Alert.alert("Verbindung nicht möglich", error instanceof Error ? error.message : "Bitte melde dich zuerst an und versuche es erneut.");
+      Alert.alert("Verbindung nicht möglich", error instanceof Error ? error.message : "Die Verbindung konnte nicht gestartet werden. Bitte versuche es erneut.");
     }
   };
   return <ScreenContainer edges={["top", "left", "right", "bottom"]}><View style={[styles.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} style={({ pressed }) => [styles.icon, pressed && styles.pressed]}><IconSymbol name="chevron.left" size={25} color={colors.foreground} /></Pressable><Text style={[styles.title, { color: colors.foreground }]}>Konto hinzufügen</Text><View style={styles.icon} /></View><ScrollView contentContainerStyle={styles.content}><Text style={[styles.heading, { color: colors.foreground }]}>Welches Konto möchtest du verbinden?</Text><Text style={[styles.intro, { color: colors.muted }]}>Wähle deinen Anbieter. Deine Anmeldung findet direkt beim jeweiligen Dienst statt.</Text>{providers.map((provider) => <Pressable key={provider.id} onPress={() => choose(provider.id, provider.name)} style={({ pressed }) => [styles.provider, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && styles.pressed]}><View style={[styles.providerIcon, { backgroundColor: `${provider.color}20` }]}><Text style={[styles.providerLetter, { color: provider.color }]}>{provider.icon}</Text></View><View style={styles.providerText}><Text style={[styles.providerName, { color: colors.foreground }]}>{provider.name}</Text><Text style={[styles.providerDetail, { color: colors.muted }]}>{provider.detail}</Text></View><IconSymbol name="chevron.right" size={19} color={colors.muted} /></Pressable>)}<View style={[styles.note, { backgroundColor: `${colors.primary}10` }]}><IconSymbol name="lock.fill" size={18} color={colors.primary} /><Text style={[styles.noteText, { color: colors.foreground }]}>Unified Mail speichert keine Passwörter. Provider-Zugriffe können jederzeit in den Kontoeinstellungen widerrufen werden.</Text></View></ScrollView></ScreenContainer>;

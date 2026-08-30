@@ -53,3 +53,11 @@
 - [x] Empty States, Konten und Compose visuell konsistent überarbeitet; Detailansicht folgt im nächsten Pass
 - [x] Tab-Bar und Interaktionen von dekorativen Akzenten und übertriebenen Animationen bereinigen
 - [x] Visuelle Vorschau sowie TypeScript, Tests und Lint nach dem Refresh prüfen
+
+## Fehler 1001: Erstes Postfach verbinden
+
+- [x] Erstverbindung darf nicht an eine vorherige interne App-Anmeldung gebunden sein
+- [x] Signierten Erstverbindungszustand mit sicherer lokaler Nutzeridentität implementieren
+- [x] OAuth-Callback für Google und Outlook ohne unverständlichen Login-Fehler abschließen
+- [ ] Mobile Rückkehr nach erfolgreicher Verbindung und Kontenaktualisierung herstellen
+- [ ] Regressionstest für nicht angemeldeten Erststart und Fehler 1001 ergänzen

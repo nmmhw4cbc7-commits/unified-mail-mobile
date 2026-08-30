@@ -1,10 +1,12 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { providerLabel } from "@/lib/mail-data";
 import { trpc } from "@/lib/trpc";
 import { useColors } from "@/hooks/use-colors";
+import { getDeviceId } from "@/lib/device-identity";
 
 const providerColors = { gmail: "#E95C5C", outlook: "#3A78D4", icloud: "#8B72D8", imap: "#26A69A" } as const;
 
@@ -12,7 +14,9 @@ type Account = { id: number; provider: keyof typeof providerColors; email: strin
 
 export default function AccountsScreen() {
   const colors = useColors();
-  const { data } = trpc.mail.accounts.useQuery();
+  const [deviceId, setDeviceId] = useState("");
+  useEffect(() => { getDeviceId().then(setDeviceId); }, []);
+  const { data } = trpc.mail.accounts.useQuery({ deviceId }, { enabled: deviceId.length >= 16 });
   const connectedAccounts = (data ?? []) as Account[];
   return (
     <ScreenContainer edges={["top", "left", "right", "bottom"]}>

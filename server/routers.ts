@@ -10,9 +10,9 @@ export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   mail: router({
-    accounts: protectedProcedure.query(({ ctx }) => db.listMailAccounts(ctx.user.id)),
-    providers: protectedProcedure.query(() => ({ gmail: providerIsConfigured("gmail"), outlook: providerIsConfigured("outlook") })),
-    oauthStart: protectedProcedure.input(z.object({ provider: z.enum(["gmail", "outlook"]) })).mutation(async ({ ctx, input }) => createOAuthRequest(input.provider, ctx.req, ctx.user.id)),
+    accounts: publicProcedure.input(z.object({ deviceId: z.string().min(16) })).query(async ({ input }) => { const user = await db.getUserByOpenId(`device:${input.deviceId}`); return user ? db.listMailAccounts(user.id) : []; }),
+    providers: publicProcedure.query(() => ({ gmail: providerIsConfigured("gmail"), outlook: providerIsConfigured("outlook") })),
+    oauthStart: publicProcedure.input(z.object({ provider: z.enum(["gmail", "outlook"]), deviceId: z.string().min(16) })).mutation(async ({ ctx, input }) => { const openId = `device:${input.deviceId}`; await db.upsertUser({ openId, loginMethod: "device" }); const user = await db.getUserByOpenId(openId); if (!user) throw new Error("Device identity could not be created"); return createOAuthRequest(input.provider, ctx.req, user.id); }),
   }),
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
