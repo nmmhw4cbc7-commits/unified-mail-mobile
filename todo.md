@@ -71,3 +71,12 @@
 - [x] Account-Button oben rechts mit Kontenansicht und Statusfunktion verbinden
 - [x] Empty State zentral ausrichten und visuell ausarbeiten
 - [x] Tests und Lint nach den Korrekturen geprüft; Preview-Server war beim Screenshot-Lauf nicht erreichbar
+
+## GitHub-Repository und OAuth-Diagnose
+
+- [ ] GitHub-Schreibzugriff und angemeldetes Konto prüfen
+- [ ] GitHub-ready Dokumentation und `.env.example` erstellen, ohne Secrets zu committen
+- [ ] Neues Repository mit passendem Namen anlegen
+- [ ] Vollständigen aktuellen App-Code pushen
+- [ ] Tatsächlich verwendete Google-Redirect-URI und Client-Konfiguration verifizieren
+- [ ] Repository-Link und verbleibende Google-Cloud-Einstellung liefern
