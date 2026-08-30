@@ -7,9 +7,7 @@ import { accounts, getAccount } from "@/lib/mail-data";
 import { useMailStore } from "@/lib/mail-store";
 import { useColors } from "@/hooks/use-colors";
 
-function initials(name: string) {
-  return name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase();
-}
+function initials(name: string) { return name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase(); }
 
 export default function InboxScreen() {
   const colors = useColors();
@@ -17,66 +15,25 @@ export default function InboxScreen() {
   const [query, setQuery] = useState("");
   const [activeAccount, setActiveAccount] = useState("all");
   const [unreadOnly, setUnreadOnly] = useState(false);
-
   const filtered = useMemo(() => messages.filter((mail) => {
     const matchesAccount = activeAccount === "all" || mail.accountId === activeAccount;
     const haystack = `${mail.senderName} ${mail.senderEmail} ${mail.subject} ${mail.preview}`.toLowerCase();
-    const matchesQuery = haystack.includes(query.toLowerCase());
-    return matchesAccount && matchesQuery && (!unreadOnly || mail.unread);
+    return matchesAccount && haystack.includes(query.toLowerCase()) && (!unreadOnly || mail.unread);
   }), [activeAccount, query, unreadOnly, messages]);
 
-  if (accounts.length === 0) {
-    return <ScreenContainer className="px-5" edges={["top", "left", "right"]}>
-      <View style={styles.header}><View><Text style={[styles.eyebrow, { color: colors.primary }]}>DEIN POSTEINGANG</Text><Text style={[styles.title, { color: colors.foreground }]}>Alle Mails</Text></View><View style={[styles.avatarButton, { backgroundColor: colors.border }]}><IconSymbol name="person.crop.circle.fill" size={22} color={colors.muted} /></View></View>
-      <View style={styles.onboarding}><View style={[styles.onboardingIcon, { backgroundColor: `${colors.primary}14` }]}><IconSymbol name="tray.fill" size={34} color={colors.primary} /></View><Text style={[styles.emptyTitle, { color: colors.foreground }]}>Noch kein Postfach verbunden</Text><Text style={[styles.emptyText, { color: colors.muted }]}>Verbinde dein erstes Konto, um deine E-Mails hier gesammelt zu sehen.</Text><Pressable onPress={() => router.push("/add-account")} style={({ pressed }) => [styles.connectButton, { backgroundColor: colors.primary }, pressed && styles.pressed]}><IconSymbol name="plus" size={18} color="#FFF" /><Text style={styles.connectButtonText}>Postfach verbinden</Text></Pressable></View>
-    </ScreenContainer>;
-  }
+  if (accounts.length === 0) return <ScreenContainer className="px-5" edges={["top", "left", "right"]}>
+    <View style={styles.header}><Text style={[styles.brandName, { color: colors.foreground }]}>unified mail</Text><Pressable accessibilityLabel="Konten öffnen" onPress={() => router.push("/accounts")} style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}><IconSymbol name="person.crop.circle.fill" size={25} color={colors.foreground} /></Pressable></View>
+    <View style={[styles.empty, { borderTopColor: colors.border }]}><IconSymbol name="tray.fill" size={26} color={colors.muted} /><Text style={[styles.emptyTitle, { color: colors.foreground }]}>Kein Postfach verbunden</Text><Text style={[styles.emptyText, { color: colors.muted }]}>Verbinde dein Postfach – wir sortieren den Rest.</Text><Pressable onPress={() => router.push("/add-account")} style={({ pressed }) => [styles.connectButton, { backgroundColor: colors.primary }, pressed && styles.pressed]}><Text style={styles.connectButtonText}>Postfach verbinden</Text></Pressable></View>
+  </ScreenContainer>;
 
-  return (
-    <ScreenContainer className="px-5" edges={["top", "left", "right"]}>
-      <View style={styles.header}>
-        <View>
-          <Text style={[styles.eyebrow, { color: colors.primary }]}>DEIN POSTEINGANG</Text>
-          <Text style={[styles.title, { color: colors.foreground }]}>Alle Mails</Text>
-        </View>
-        <Pressable accessibilityLabel="Konten öffnen" onPress={() => router.push("/accounts")} style={({ pressed }) => [styles.avatarButton, { backgroundColor: colors.foreground }, pressed && styles.pressed]}>
-          <Text style={[styles.avatarText, { color: colors.background }]}>A</Text>
-        </Pressable>
-      </View>
-
-      <View style={[styles.searchBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <IconSymbol name="magnifyingglass" size={20} color={colors.muted} />
-        <TextInput value={query} onChangeText={setQuery} placeholder="Mails durchsuchen" placeholderTextColor={colors.muted} style={[styles.searchInput, { color: colors.foreground }]} returnKeyType="search" />
-        {query.length > 0 && <Pressable onPress={() => setQuery("")} style={({ pressed }) => pressed && styles.pressed}><IconSymbol name="xmark.circle.fill" size={18} color={colors.muted} /></Pressable>}
-      </View>
-
-      <View style={styles.filterRow}>
-        <FlatList horizontal showsHorizontalScrollIndicator={false} data={[{ id: "all", label: "Alle" }, ...accounts.map((a) => ({ id: a.id, label: a.name }))]} keyExtractor={(item) => item.id} renderItem={({ item }) => {
-          const active = item.id === activeAccount;
-          return <Pressable onPress={() => setActiveAccount(item.id)} style={({ pressed }) => [styles.chip, { backgroundColor: active ? colors.foreground : colors.surface, borderColor: active ? colors.foreground : colors.border }, pressed && styles.pressed]}><Text style={[styles.chipText, { color: active ? colors.background : colors.muted }]}>{item.label}</Text></Pressable>;
-        }} />
-        <Pressable accessibilityLabel="Nur ungelesene Mails" onPress={() => setUnreadOnly((value) => !value)} style={({ pressed }) => [styles.filterButton, { borderColor: unreadOnly ? colors.primary : colors.border, backgroundColor: unreadOnly ? `${colors.primary}14` : colors.surface }, pressed && styles.pressed]}>
-          <IconSymbol name="line.3.horizontal.decrease.circle" size={18} color={unreadOnly ? colors.primary : colors.muted} />
-        </Pressable>
-      </View>
-
-      <View style={styles.listHeading}><Text style={[styles.sectionTitle, { color: colors.foreground }]}>Posteingang</Text><Text style={[styles.count, { color: colors.muted }]}>{filtered.length} Mails</Text></View>
-      <FlatList data={filtered} keyExtractor={(item) => item.id} contentContainerStyle={styles.list} showsVerticalScrollIndicator={false} renderItem={({ item }) => {
-        const account = getAccount(item.accountId, accounts);
-        if (!account) return null;
-        return <Pressable onPress={() => { markRead(item.id); router.push(`/mail/${item.id}`); }} style={({ pressed }) => [styles.mailRow, { borderBottomColor: colors.border }, pressed && { opacity: 0.7 }]}>
-          <View style={[styles.senderAvatar, { backgroundColor: `${account.color}22` }]}><Text style={[styles.senderInitials, { color: account.color }]}>{initials(item.senderName)}</Text></View>
-          <View style={styles.mailContent}>
-            <View style={styles.rowBetween}><Text numberOfLines={1} style={[styles.sender, { color: colors.foreground }, item.unread && styles.bold]}>{item.senderName}</Text><Text style={[styles.time, { color: item.unread ? colors.primary : colors.muted }, item.unread && styles.bold]}>{item.timestamp}</Text></View>
-            <View style={styles.rowBetween}><Text numberOfLines={1} style={[styles.subject, { color: colors.foreground }, item.unread && styles.bold]}>{item.subject}</Text>{item.starred && <IconSymbol name="star.fill" size={15} color="#E2A62C" />}</View>
-            <Text numberOfLines={1} style={[styles.preview, { color: colors.muted }]}>{item.preview}</Text>
-            <View style={styles.metaRow}><View style={[styles.accountDot, { backgroundColor: account.color }]} /><Text style={[styles.accountName, { color: colors.muted }]}>{account.name}</Text>{item.hasAttachment && <IconSymbol name="paperclip" size={14} color={colors.muted} />}</View>
-          </View>
-        </Pressable>;
-      }} ListEmptyComponent={<View style={styles.empty}><Text style={[styles.emptyTitle, { color: colors.foreground }]}>Keine passenden Mails</Text><Text style={[styles.emptyText, { color: colors.muted }]}>Versuche einen anderen Suchbegriff oder Filter.</Text></View>} />
-      <Pressable accessibilityLabel="Neue Mail verfassen" onPress={() => router.push("/compose")} style={({ pressed }) => [styles.compose, { backgroundColor: colors.primary }, pressed && styles.pressed]}><IconSymbol name="square.and.pencil" size={22} color="#FFFFFF" /></Pressable>
-    </ScreenContainer>
-  );
+  return <ScreenContainer className="px-5" edges={["top", "left", "right"]}>
+    <View style={styles.header}><Text style={[styles.brandName, { color: colors.foreground }]}>unified mail</Text><Pressable accessibilityLabel="Konten öffnen" onPress={() => router.push("/accounts")} style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}><IconSymbol name="person.crop.circle.fill" size={25} color={colors.foreground} /></Pressable></View>
+    <View style={[styles.searchBox, { backgroundColor: colors.surface, borderColor: colors.border }]}><IconSymbol name="magnifyingglass" size={18} color={colors.muted} /><TextInput value={query} onChangeText={setQuery} placeholder="Suchen" placeholderTextColor={colors.muted} style={[styles.searchInput, { color: colors.foreground }]} returnKeyType="search" />{query.length > 0 && <Pressable onPress={() => setQuery("")} style={({ pressed }) => pressed && styles.pressed}><IconSymbol name="xmark.circle.fill" size={18} color={colors.muted} /></Pressable>}</View>
+    <View style={styles.filterRow}><FlatList horizontal showsHorizontalScrollIndicator={false} data={[{ id: "all", label: "Alle" }, ...accounts.map((a) => ({ id: a.id, label: a.name }))]} keyExtractor={(item) => item.id} renderItem={({ item }) => { const active = item.id === activeAccount; return <Pressable onPress={() => setActiveAccount(item.id)} style={({ pressed }) => [styles.chip, { backgroundColor: active ? colors.foreground : colors.background, borderColor: active ? colors.foreground : colors.border }, pressed && styles.pressed]}><Text style={[styles.chipText, { color: active ? colors.background : colors.muted }]}>{item.label}</Text></Pressable>; }} /></View>
+    <View style={styles.listHeading}><Text style={[styles.sectionTitle, { color: colors.foreground }]}>Posteingang</Text><Pressable onPress={() => setUnreadOnly((value) => !value)} style={({ pressed }) => [styles.unreadButton, { borderColor: unreadOnly ? colors.primary : colors.border }, pressed && styles.pressed]}><Text style={[styles.unreadText, { color: unreadOnly ? colors.primary : colors.muted }]}>Ungelesen</Text></Pressable></View>
+    <FlatList data={filtered} keyExtractor={(item) => item.id} contentContainerStyle={styles.list} showsVerticalScrollIndicator={false} renderItem={({ item }) => { const account = getAccount(item.accountId, accounts); if (!account) return null; return <Pressable onPress={() => { markRead(item.id); router.push(`/mail/${item.id}`); }} style={({ pressed }) => [styles.mailRow, { borderBottomColor: colors.border }, pressed && styles.rowPressed]}><View style={[styles.senderAvatar, { backgroundColor: `${account.color}18` }]}><Text style={[styles.senderInitials, { color: account.color }]}>{initials(item.senderName)}</Text></View><View style={styles.mailContent}><View style={styles.rowBetween}><Text numberOfLines={1} style={[styles.sender, { color: colors.foreground }, item.unread && styles.bold]}>{item.senderName}</Text><Text style={[styles.time, { color: colors.muted }]}>{item.timestamp}</Text></View><View style={styles.rowBetween}><Text numberOfLines={1} style={[styles.subject, { color: colors.foreground }, item.unread && styles.bold]}>{item.subject}</Text>{item.starred && <IconSymbol name="star.fill" size={14} color={colors.muted} />}</View><Text numberOfLines={1} style={[styles.preview, { color: colors.muted }]}>{item.preview}</Text><Text numberOfLines={1} style={[styles.accountName, { color: colors.muted }]}>{account.name}{item.hasAttachment ? "  ·  Anhang" : ""}</Text></View></Pressable>; }} ListEmptyComponent={<View style={styles.noResults}><Text style={[styles.emptyTitle, { color: colors.foreground }]}>Keine Nachrichten</Text><Text style={[styles.emptyText, { color: colors.muted }]}>Passe deine Suche oder den Filter an.</Text></View>} />
+    <Pressable accessibilityLabel="Neue Mail verfassen" onPress={() => router.push("/compose")} style={({ pressed }) => [styles.compose, { backgroundColor: colors.primary }, pressed && styles.pressed]}><IconSymbol name="square.and.pencil" size={20} color="#FFFFFF" /></Pressable>
+  </ScreenContainer>;
 }
 
-const styles = StyleSheet.create({ header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingTop: 12, paddingBottom: 22 }, eyebrow: { fontSize: 11, fontWeight: "800", letterSpacing: 1.4 }, title: { fontSize: 32, fontWeight: "800", letterSpacing: -1.1, marginTop: 5 }, avatarButton: { width: 42, height: 42, borderRadius: 21, alignItems: "center", justifyContent: "center" }, avatarText: { fontSize: 16, fontWeight: "800" }, searchBox: { height: 48, borderWidth: 1, borderRadius: 15, flexDirection: "row", alignItems: "center", paddingHorizontal: 14, gap: 9 }, searchInput: { flex: 1, fontSize: 15 }, filterRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 16 }, chip: { borderWidth: 1, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 8, marginRight: 7 }, chipText: { fontSize: 13, fontWeight: "700" }, filterButton: { width: 36, height: 36, borderWidth: 1, borderRadius: 18, alignItems: "center", justifyContent: "center" }, listHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingBottom: 8 }, sectionTitle: { fontSize: 18, fontWeight: "800" }, count: { fontSize: 12 }, list: { paddingBottom: 90 }, mailRow: { flexDirection: "row", gap: 12, paddingVertical: 15, borderBottomWidth: 1 }, senderAvatar: { width: 42, height: 42, borderRadius: 21, alignItems: "center", justifyContent: "center" }, senderInitials: { fontWeight: "800", fontSize: 13 }, mailContent: { flex: 1, minWidth: 0 }, rowBetween: { flexDirection: "row", alignItems: "center", gap: 8 }, sender: { flex: 1, fontSize: 14 }, subject: { flex: 1, fontSize: 14, marginTop: 3 }, preview: { fontSize: 13, marginTop: 4, lineHeight: 18 }, time: { fontSize: 12 }, bold: { fontWeight: "800" }, metaRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 7 }, accountDot: { width: 6, height: 6, borderRadius: 3 }, accountName: { fontSize: 11, flex: 1 }, compose: { position: "absolute", right: 20, bottom: 22, width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", shadowColor: "#122033", shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 5 }, elevation: 5 }, pressed: { opacity: 0.72, transform: [{ scale: 0.97 }] }, onboarding: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24, paddingBottom: 80 }, onboardingIcon: { width: 76, height: 76, borderRadius: 24, alignItems: "center", justifyContent: "center", marginBottom: 20 }, connectButton: { marginTop: 24, height: 48, paddingHorizontal: 18, borderRadius: 14, flexDirection: "row", alignItems: "center", gap: 8 }, connectButtonText: { color: "#FFF", fontWeight: "800", fontSize: 14 }, empty: { alignItems: "center", paddingTop: 80, paddingHorizontal: 30 }, emptyTitle: { fontSize: 18, fontWeight: "800" }, emptyText: { textAlign: "center", marginTop: 7, lineHeight: 20 },});
+const styles = StyleSheet.create({ header: { height: 66, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, brandName: { fontSize: 18, fontWeight: "700", letterSpacing: -0.2 }, headerButton: { width: 36, height: 36, alignItems: "center", justifyContent: "center" }, searchBox: { height: 44, borderWidth: 1, borderRadius: 10, flexDirection: "row", alignItems: "center", paddingHorizontal: 12, gap: 8 }, searchInput: { flex: 1, fontSize: 15 }, filterRow: { paddingVertical: 14 }, chip: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 7, marginRight: 8 }, chipText: { fontSize: 13, fontWeight: "600" }, listHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingBottom: 5 }, sectionTitle: { fontSize: 17, fontWeight: "700" }, unreadButton: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }, unreadText: { fontSize: 12, fontWeight: "600" }, list: { paddingBottom: 100 }, mailRow: { flexDirection: "row", gap: 12, paddingVertical: 15, borderBottomWidth: 1 }, rowPressed: { opacity: 0.62 }, senderAvatar: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", marginTop: 1 }, senderInitials: { fontWeight: "700", fontSize: 12 }, mailContent: { flex: 1, minWidth: 0 }, rowBetween: { flexDirection: "row", alignItems: "center", gap: 8 }, sender: { flex: 1, fontSize: 14 }, subject: { flex: 1, fontSize: 14, marginTop: 4 }, preview: { fontSize: 13, marginTop: 5, lineHeight: 18 }, time: { fontSize: 12 }, accountName: { fontSize: 11, marginTop: 7 }, bold: { fontWeight: "800" }, compose: { position: "absolute", right: 20, bottom: 20, width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" }, empty: { borderTopWidth: 1, marginTop: 8, paddingTop: 28, alignItems: "flex-start" }, emptyTitle: { fontSize: 18, fontWeight: "700", marginTop: 12 }, emptyText: { fontSize: 14, lineHeight: 21, marginTop: 5 }, connectButton: { marginTop: 20, height: 44, borderRadius: 9, paddingHorizontal: 16, alignItems: "center", justifyContent: "center" }, connectButtonText: { color: "#FFF", fontWeight: "700", fontSize: 14 }, noResults: { alignItems: "center", paddingTop: 60 }, pressed: { opacity: 0.65, transform: [{ scale: 0.98 }] } });

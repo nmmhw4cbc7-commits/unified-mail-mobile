@@ -44,3 +44,12 @@
 - [ ] Echte Inbox-Synchronisation und normalisierte Maildaten
 - [ ] Echten Versand über das ausgewählte Nutzerkonto implementieren
 - [x] Konto-Verbindung ohne Provider-Credentials verständlich deaktivieren statt Demo-Daten zu zeigen
+
+## Design-Refresh: gegen AI-Slop-Muster
+
+- [x] Designsystem ohne Glows, Gradients, Glassmorphism und dekorative Hintergründe
+- [x] Typografie mit klarer Größenhierarchie ohne Kicker, Serif-Hero oder künstliche Marketing-Copy
+- [x] Inbox mit flacher, ruhiger Listenstruktur statt Kartenraster und verschachtelten Flächen
+- [x] Empty States, Konten und Compose visuell konsistent überarbeitet; Detailansicht folgt im nächsten Pass
+- [x] Tab-Bar und Interaktionen von dekorativen Akzenten und übertriebenen Animationen bereinigen
+- [x] Visuelle Vorschau sowie TypeScript, Tests und Lint nach dem Refresh prüfen
