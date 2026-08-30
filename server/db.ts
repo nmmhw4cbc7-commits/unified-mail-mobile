@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, mailAccounts, users, type InsertMailAccount } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,21 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function listMailAccounts(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ id: mailAccounts.id, provider: mailAccounts.provider, email: mailAccounts.email, displayName: mailAccounts.displayName, tokenExpiresAt: mailAccounts.tokenExpiresAt }).from(mailAccounts).where(eq(mailAccounts.userId, userId));
+}
+
+export async function upsertMailAccount(account: InsertMailAccount) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(mailAccounts).values(account).onDuplicateKeyUpdate({ set: { displayName: account.displayName, encryptedAccessToken: account.encryptedAccessToken, encryptedRefreshToken: account.encryptedRefreshToken, tokenExpiresAt: account.tokenExpiresAt, updatedAt: new Date() } });
+}
+
+export async function getMailAccountForUser(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(mailAccounts).where(and(eq(mailAccounts.id, id), eq(mailAccounts.userId, userId))).limit(1);
+  return result[0];
+}

@@ -35,3 +35,12 @@
 - [x] Keine Beispiel-Mails bei erstmaligem App-Start
 - [x] Leerer Inbox-Zustand mit Konto-verbinden-Onboarding
 - [x] Tests für Nutzer ohne verbundene Konten und leere Mail-Liste
+
+## Sofort gestartet: echte Postfach-Verbindung
+
+- [x] Gmail-OAuth-Login und Callback mit Nutzerkonto (Server-Flow implementiert)
+- [x] Microsoft-365-OAuth-Login und Callback mit Nutzerkonto (Server-Flow implementiert)
+- [x] Provider-Tokens verschlüsselt und nutzerbezogen speichern
+- [ ] Echte Inbox-Synchronisation und normalisierte Maildaten
+- [ ] Echten Versand über das ausgewählte Nutzerkonto implementieren
+- [x] Konto-Verbindung ohne Provider-Credentials verständlich deaktivieren statt Demo-Daten zu zeigen

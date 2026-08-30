@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, uniqueIndex } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,4 +25,18 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+export const mailAccounts = mysqlTable("mail_accounts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  provider: mysqlEnum("provider", ["gmail", "outlook", "icloud", "imap"]).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  displayName: varchar("displayName", { length: 255 }),
+  encryptedAccessToken: text("encryptedAccessToken"),
+  encryptedRefreshToken: text("encryptedRefreshToken"),
+  tokenExpiresAt: timestamp("tokenExpiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({ userProviderEmailIdx: uniqueIndex("mail_accounts_user_provider_email_idx").on(table.userId, table.provider, table.email) }));
+
+export type MailAccount = typeof mailAccounts.$inferSelect;
+export type InsertMailAccount = typeof mailAccounts.$inferInsert;
