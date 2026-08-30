@@ -93,4 +93,4 @@
 - [x] Keine drei hardcodierten Konten in Inbox, Kontenansicht oder Store
 - [x] Keine Beispielnachrichten im Erststart inklusive AsyncStorage-Migration
 - [x] Inbox-Logo links, Account-Aktion rechts und zentraler Empty State verifizieren
-- [ ] Alle Prüfungen ausführen und geprüften Stand nach GitHub pushen
+- [x] Alle Prüfungen ausführen und geprüften Stand nach GitHub pushen
