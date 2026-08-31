@@ -50,6 +50,7 @@ export function MailStoreProvider({ children }: { children: ReactNode }) {
   const accountQuery = trpc.mail.accounts.useQuery({ deviceId }, { enabled: deviceId.length >= 16 });
   const remoteQuery = trpc.mail.messages.useQuery({ deviceId }, { enabled: deviceId.length >= 16 });
   const syncMutation = trpc.mail.sync.useMutation();
+  const updateStatusMutation = trpc.mail.updateStatus.useMutation();
 
   useEffect(() => { getDeviceId().then(setDeviceId).catch(() => undefined); }, []);
 
@@ -82,8 +83,15 @@ export function MailStoreProvider({ children }: { children: ReactNode }) {
 
   const markRead = useCallback((id: string) => {
     setMailMessages((current) => current.some((mail) => mail.id === id && mail.unread) ? current.map((mail) => mail.id === id ? { ...mail, unread: false } : mail) : current);
-  }, []);
-  const toggleStar = useCallback((id: string) => setMailMessages((current) => current.map((mail) => mail.id === id ? { ...mail, starred: !mail.starred } : mail)), []);
+    if (id.startsWith("server-") && deviceId.length >= 16) updateStatusMutation.mutate({ deviceId, messageId: Number(id.replace("server-", "")), unread: false });
+  }, [deviceId, updateStatusMutation]);
+  const toggleStar = useCallback((id: string) => {
+    setMailMessages((current) => {
+      const target = current.find((mail) => mail.id === id);
+      if (id.startsWith("server-") && deviceId.length >= 16 && target) updateStatusMutation.mutate({ deviceId, messageId: Number(id.replace("server-", "")), starred: !target.starred });
+      return current.map((mail) => mail.id === id ? { ...mail, starred: !mail.starred } : mail);
+    });
+  }, [deviceId, updateStatusMutation]);
   const addSentMessage = useCallback((message: MailMessage) => setMailMessages((current) => [message, ...current]), []);
   const remoteMessages = useMemo(() => (remoteQuery.data ?? []).map(mapRemoteMessage), [remoteQuery.data]);
   const messages = useMemo(() => {

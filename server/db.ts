@@ -121,6 +121,14 @@ export async function upsertMailMessage(message: InsertMailMessage) {
   await db.insert(mailMessages).values(message).onDuplicateKeyUpdate({ set: { threadId: message.threadId, senderName: message.senderName, senderEmail: message.senderEmail, recipientsJson: message.recipientsJson, subject: message.subject, preview: message.preview, body: message.body, receivedAt: message.receivedAt, unread: message.unread, hasAttachment: message.hasAttachment, labelsJson: message.labelsJson, updatedAt: new Date() } });
 }
 
+export async function updateMailMessageStatus(userId: number, messageId: number, status: { unread?: boolean; starred?: boolean }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const owned = await db.select({ id: mailMessages.id }).from(mailMessages).innerJoin(mailAccounts, eq(mailMessages.accountId, mailAccounts.id)).where(and(eq(mailMessages.id, messageId), eq(mailAccounts.userId, userId)));
+  if (!owned.length) throw new Error("Nachricht nicht gefunden");
+  await db.update(mailMessages).set({ ...status, updatedAt: new Date() }).where(eq(mailMessages.id, messageId));
+}
+
 export async function updateMailAccountTokens(id: number, tokens: Pick<InsertMailAccount, "encryptedAccessToken" | "encryptedRefreshToken" | "tokenExpiresAt">) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

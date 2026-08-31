@@ -132,7 +132,7 @@
 - [x] Gmail-Posteingang abrufen, normalisieren, deduplizieren und speichern
 - [x] Microsoft-Posteingang über Microsoft Graph abrufen, normalisieren, deduplizieren und speichern
 - [x] Mobile Inbox aus synchronisierten Nachrichten und dynamischen Konten aufbauen
-- [ ] Nachrichten lesen, als gelesen markieren und Favoriten serverseitig synchronisieren
+- [x] Nachrichten lesen, als gelesen markieren und Favoriten serverseitig synchronisieren
 - [x] Gmail- und Microsoft-Versand mit Reply/Forward-Unterstützung implementieren
 - [ ] Provider- und Netzwerkfehler mit Retry, Reconnect-Hinweis und verständlicher UI behandeln
 - [ ] Anhänge sicher verarbeiten und Größen-/Typgrenzen dokumentieren
@@ -145,13 +145,22 @@
 - [x] Versandantworten, Provider-Message-ID und Fehlerstatus dauerhaft protokollieren, damit Zustellung nachvollziehbar ist
 - [x] Versand für Gmail und Outlook mit korrekten Provider-Anforderungen und Selbsttest-Feedback reparieren
 - [ ] Alle sichtbaren Pressables auf echte Aktionen, Navigation oder bewusste Deaktivierung prüfen
-- [ ] Mobile Screens auf einheitliche Safe-Area-, Abstands-, Größen- und Tab-Bar-Regeln umstellen
-- [ ] Preview auf Desktop und schmalem Mobil-Viewport visuell prüfen und Regressionstests ergänzen
+- [x] Mobile Screens auf einheitliche Safe-Area-, Abstands-, Größen- und Tab-Bar-Regeln umstellen
+- [x] Preview auf Desktop und schmalem Mobil-Viewport visuell prüfen und Regressionstests ergänzen
 
 ## Sofortige Stabilisierung: Google, Buttons, Versand und Layout
 
 - [x] Google-OAuth-Branding, Zielgruppe und Testnutzer vollständig konfigurieren
 - [ ] Alle sichtbaren Aktionen auf echte Navigation, funktionale Mutation oder bewusst deaktivierten Zustand prüfen
 - [x] Versandstatus und Provider-Antwort für Gmail/Outlook verständlich anzeigen
-- [ ] Layoutprobleme auf den Kernscreens mit einheitlichen Safe-Area- und Abstandsregeln beheben
-- [ ] Kernflows auf Web und mobilem Portrait-Viewport regressionsprüfen
+- [x] Layoutprobleme auf den Kernscreens mit einheitlichen Safe-Area- und Abstandsregeln beheben
+- [x] Kernflows auf Web und mobilem Portrait-Viewport regressionsprüfen
+
+## Inbox- und Versand-Verbesserungen
+
+- [ ] Google-OAuth-Flow nach der Testnutzerfreigabe erneut bis zum Callback verifizieren
+- [x] Inbox-Tabs direkt anhand verbundener E-Mail-Adressen anzeigen und filtern
+- [x] Ungelesene Mails zuverlässig markieren, zählen und filtern
+- [x] Maildetail mit vollständigem Betreff, Absenderadresse, Empfänger, Datum und Text lesbar darstellen
+- [x] Beim Öffnen einer Mail den Lesestatus lokal und serverseitig aktualisieren
+- [x] Versand sofort mit Provider-Annahme-Status bestätigen und keine falsche Zustellgarantie anzeigen
