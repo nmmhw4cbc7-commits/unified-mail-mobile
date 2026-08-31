@@ -67,3 +67,11 @@ Das Azure-Registrierungsformular ist jetzt vollständig vorbereitet:
 - Redirect URI: `https://unimailapp-aje7zwqe.manus.space/api/mail/oauth/callback`
 
 Die Registrierung wurde erfolgreich abgeschickt. Die öffentliche Application (client) ID lautet `94f1c171-f990-4a06-9f21-ee42435889e2`. Die Object ID lautet `00ac9b6b-4a6c-47ea-9d62-c27f4f41b97d`, die Directory (tenant) ID `30367898-3886-42a5-80db-eb9331ecd287`. Azure zeigt den Status `Activated`, den Kontotyp `All Microsoft account users` und `1 web` Redirect URI. Die Client-ID ist kein Secret; ein Client Secret muss noch erstellt werden und darf nicht in Git committen.
+
+## Aktueller Teststatus 31.08.2026
+
+Outlook/Microsoft 365 wurde über die neue Entra-App erfolgreich verbunden und erscheint in der Kontenansicht. Die Inbox verwendet nun ebenfalls die serverseitig geladenen Konten und zeigt bei einem verbundenen, aber noch nicht synchronisierten Konto nicht mehr den Zustand „Kein Postfach verbunden“, sondern eine leere Nachrichtenliste.
+
+Die Google-Anmeldung erreicht den Google-Login, wird danach aber mit HTTP 403 und dem Hinweis abgelehnt, dass die Überprüfung von `manus.space` noch nicht abgeschlossen ist. Das ist eine Google-Cloud-Consent-Screen- bzw. Publishing-Einstellung und kein Redirect-URI-Fehler. Für Tests muss die Google-OAuth-App entweder veröffentlicht werden oder das verwendete Google-Konto im Bereich „Test users“ des OAuth consent screen eingetragen werden. Die produktive Redirect-URI bleibt `https://unimailapp-aje7zwqe.manus.space/api/mail/oauth/callback`.
+
+Die eigentliche Provider-Inbox-Synchronisation (Gmail API und Microsoft Graph) ist noch nicht implementiert; die Verbindung speichert aktuell bereits die verschlüsselten Tokens und zeigt das Konto korrekt an, lädt aber noch keine Nachrichten in den mobilen Store.
