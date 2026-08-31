@@ -5,6 +5,7 @@ import { getDeviceId } from "@/lib/device-identity";
 import { trpc } from "@/lib/trpc";
 
 const STORAGE_KEY = "unified-mail:messages:v2";
+export const LAST_SYNC_KEY = "unified-mail:last-sync:v1";
 
 type MailStoreValue = {
   messages: MailMessage[];
@@ -75,12 +76,16 @@ export function MailStoreProvider({ children }: { children: ReactNode }) {
     if (deviceId.length < 16 || !accountQuery.data?.length) return;
     let cancelled = false;
     (async () => {
+      let successfulSyncs = 0;
       for (const account of accountQuery.data) {
         if (cancelled || syncStartedFor.current.has(account.id)) continue;
         syncStartedFor.current.add(account.id);
-        try { await syncMutation.mutateAsync({ deviceId, accountId: account.id }); } catch { /* UI remains usable; the next refresh can retry. */ }
+        try { await syncMutation.mutateAsync({ deviceId, accountId: account.id }); successfulSyncs += 1; } catch { /* UI remains usable; the next refresh can retry. */ }
       }
-      if (!cancelled) await remoteQuery.refetch();
+      if (!cancelled) {
+        await remoteQuery.refetch();
+        if (successfulSyncs > 0) await AsyncStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+      }
     })();
     return () => { cancelled = true; };
   }, [accountQuery.data, deviceId]);

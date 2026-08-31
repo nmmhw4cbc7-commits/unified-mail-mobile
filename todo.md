@@ -174,3 +174,11 @@
 - [x] Rechts-Swipe einer Mail als Löschen in den Papierkorb umsetzen
 - [x] Drei-Punkte-Menü in der Maildetailansicht um „Verschieben nach …“ erweitern
 - [ ] Provider-Ordner-Mapping für Gmail und Microsoft Graph dokumentieren und testen
+
+## Darstellung und Synchronisationszeit
+
+- [x] Hell-, Dunkel- und Systemmodus in den Einstellungen auswählbar machen
+- [x] Gewählten Darstellungsmodus persistent speichern und appweit anwenden
+- [x] Letzten erfolgreichen Sync-Zeitpunkt bei erfolgreicher Kontosynchronisation speichern
+- [x] Sync-Zeitpunkt klein am unteren Ende der Einstellungen statt als Menüpunkt anzeigen
+- [ ] Theme-Wechsel und Zeitstempel auf mobilem Portrait-Viewport prüfen
