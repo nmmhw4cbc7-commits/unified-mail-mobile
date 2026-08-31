@@ -200,3 +200,11 @@
 - [x] Anbieterfarben als eigener Einstellungsmenüpunkt mit nachgelagerter Auswahl öffnen
 - [x] Benachrichtigungs-Schalter vertikal mittig ausrichten
 - [x] Wortmarke überall als „Unified Mail“ schreiben
+
+## Korrektur: Tags, Papierkorb und Detailansicht
+
+- [x] Anbieter als editierbare Tags statt als Teil der Mailvorschau darstellen
+- [x] Anbieter-Tag aus der Mailvorschau entfernen
+- [x] Papierkorb-Mail zurück in den Posteingang verschieben können
+- [x] Detailroute mit stabiler URL-Kodierung und Store-Auflösung öffnen
+- [ ] Detailnavigation für echte Provider-Mails und lokale Sendekopien testen
