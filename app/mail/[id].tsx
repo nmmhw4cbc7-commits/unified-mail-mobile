@@ -1,9 +1,11 @@
-import { useEffect, useMemo } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { getAccount } from "@/lib/mail-data";
+import { getDeviceId } from "@/lib/device-identity";
+import { trpc } from "@/lib/trpc";
 import { useMailStore } from "@/lib/mail-store";
 import { useColors } from "@/hooks/use-colors";
 
@@ -11,24 +13,28 @@ export default function MailDetailScreen() {
   const colors = useColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { messages, markRead, toggleStar } = useMailStore();
+  const [deviceId, setDeviceId] = useState("");
+  const accountQuery = trpc.mail.accounts.useQuery({ deviceId }, { enabled: deviceId.length >= 16 });
+  useEffect(() => { getDeviceId().then(setDeviceId).catch(() => undefined); }, []);
   const mail = useMemo(() => messages.find((item) => item.id === id) ?? messages[0], [id, messages]);
   useEffect(() => { if (mail) markRead(mail.id); }, [mail, markRead]);
   if (!mail) return <ScreenContainer edges={["top", "left", "right", "bottom"]}><View style={styles.emptyState}><Text style={[styles.subject, { color: colors.foreground }]}>Nachricht nicht gefunden</Text><Text style={[styles.email, { color: colors.muted }]}>Diese Nachricht ist nicht mehr verfügbar.</Text></View></ScreenContainer>;
-  const account = getAccount(mail.accountId);
+  const connected = accountQuery.data?.find((item) => String(item.id) === mail.accountId);
+  const account = connected ? { id: String(connected.id), name: connected.displayName || connected.email, email: connected.email, provider: connected.provider, color: connected.provider === "outlook" ? "#3A78D4" : "#E95C5C" } : getAccount(mail.accountId);
   if (!account) return <ScreenContainer edges={["top", "left", "right", "bottom"]}><View style={styles.emptyState}><Text style={[styles.subject, { color: colors.foreground }]}>Konto nicht verbunden</Text><Text style={[styles.email, { color: colors.muted }]}>Verbinde das zugehörige Postfach erneut, um diese Nachricht zu sehen.</Text></View></ScreenContainer>;
 
   return <ScreenContainer edges={["top", "left", "right", "bottom"]}>
     <View style={[styles.topBar, { borderBottomColor: colors.border }]}>
       <Pressable accessibilityLabel="Zurück" onPress={() => router.back()} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}><IconSymbol name="chevron.left" size={25} color={colors.foreground} /></Pressable>
       <Text style={[styles.topTitle, { color: colors.foreground }]}>Nachricht</Text>
-      <Pressable accessibilityLabel="Mehr Optionen" style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}><IconSymbol name="ellipsis" size={22} color={colors.foreground} /></Pressable>
+      <Pressable accessibilityLabel="Mehr Optionen" onPress={() => Alert.alert("Weitere Optionen", "Zusätzliche Nachrichtenaktionen werden nach der Provider-Synchronisation ergänzt.")} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}><IconSymbol name="ellipsis" size={22} color={colors.foreground} /></Pressable>
     </View>
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.subjectRow}><Text style={[styles.subject, { color: colors.foreground }]}>{mail.subject}</Text><Pressable accessibilityLabel="Favorit umschalten" onPress={() => toggleStar(mail.id)} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}><IconSymbol name={mail.starred ? "star.fill" : "star"} size={21} color={mail.starred ? "#E2A62C" : colors.muted} /></Pressable></View>
       <View style={styles.senderRow}><View style={[styles.avatar, { backgroundColor: `${account.color}22` }]}><Text style={[styles.avatarText, { color: account.color }]}>{mail.senderName.split(" ").map((part) => part[0]).join("")}</Text></View><View style={styles.senderInfo}><Text style={[styles.senderName, { color: colors.foreground }]}>{mail.senderName}</Text><Text style={[styles.email, { color: colors.muted }]}>{mail.senderEmail}</Text></View><Text style={[styles.time, { color: colors.muted }]}>{mail.dateLabel}</Text></View>
       <View style={[styles.accountPill, { backgroundColor: `${account.color}14` }]}><View style={[styles.dot, { backgroundColor: account.color }]} /><Text style={[styles.accountPillText, { color: account.color }]}>Gesendet an {account.email}</Text></View>
       <Text style={[styles.body, { color: colors.foreground }]}>{mail.body}</Text>
-      {mail.hasAttachment && <View style={[styles.attachment, { backgroundColor: colors.surface, borderColor: colors.border }]}><IconSymbol name="doc.fill" size={22} color={colors.primary} /><View style={styles.attachmentText}><Text style={[styles.fileName, { color: colors.foreground }]}>Launch-Timeline.pdf</Text><Text style={[styles.fileMeta, { color: colors.muted }]}>PDF · 2,4 MB</Text></View><IconSymbol name="arrow.down.circle" size={22} color={colors.primary} /></View>}
+      {mail.hasAttachment && <Pressable onPress={() => Alert.alert("Anhang", "Das Herunterladen von Anhängen wird mit der sicheren Dateiablage ergänzt.")} style={[styles.attachment, { backgroundColor: colors.surface, borderColor: colors.border }]}><IconSymbol name="doc.fill" size={22} color={colors.primary} /><View style={styles.attachmentText}><Text style={[styles.fileName, { color: colors.foreground }]}>Launch-Timeline.pdf</Text><Text style={[styles.fileMeta, { color: colors.muted }]}>PDF · 2,4 MB</Text></View><IconSymbol name="arrow.down.circle" size={22} color={colors.primary} /></Pressable>}
     </ScrollView>
     <View style={[styles.actions, { borderTopColor: colors.border, backgroundColor: colors.background }]}><Pressable onPress={() => router.push({ pathname: "/compose", params: { replyTo: mail.senderEmail, subject: `Re: ${mail.subject}` } })} style={({ pressed }) => [styles.actionButton, { backgroundColor: colors.primary }, pressed && styles.pressed]}><IconSymbol name="arrowshape.turn.up.left.fill" size={18} color="#FFF" /><Text style={styles.actionText}>Antworten</Text></Pressable><Pressable onPress={() => router.push({ pathname: "/compose", params: { replyTo: mail.senderEmail, subject: `Fwd: ${mail.subject}` } })} style={({ pressed }) => [styles.forwardButton, { borderColor: colors.border }, pressed && styles.pressed]}><IconSymbol name="arrowshape.turn.up.right.fill" size={18} color={colors.foreground} /><Text style={[styles.forwardText, { color: colors.foreground }]}>Weiterleiten</Text></Pressable></View>
   </ScreenContainer>;

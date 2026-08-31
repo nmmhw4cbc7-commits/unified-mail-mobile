@@ -75,3 +75,7 @@ Outlook/Microsoft 365 wurde über die neue Entra-App erfolgreich verbunden und e
 Die Google-Anmeldung erreicht den Google-Login, wird danach aber mit HTTP 403 und dem Hinweis abgelehnt, dass die Überprüfung von `manus.space` noch nicht abgeschlossen ist. Das ist eine Google-Cloud-Consent-Screen- bzw. Publishing-Einstellung und kein Redirect-URI-Fehler. Für Tests muss die Google-OAuth-App entweder veröffentlicht werden oder das verwendete Google-Konto im Bereich „Test users“ des OAuth consent screen eingetragen werden. Die produktive Redirect-URI bleibt `https://unimailapp-aje7zwqe.manus.space/api/mail/oauth/callback`.
 
 Die eigentliche Provider-Inbox-Synchronisation (Gmail API und Microsoft Graph) ist noch nicht implementiert; die Verbindung speichert aktuell bereits die verschlüsselten Tokens und zeigt das Konto korrekt an, lädt aber noch keine Nachrichten in den mobilen Store.
+
+## Google-OAuth-Verifikation 31.08.2026
+
+Die Google Auth Platform wurde vervollständigt: Startseite, Datenschutz- und Nutzungsbedingungen-URLs sind gespeichert, und `philippdachtler01@gmail.com` ist als Testnutzer eingetragen. Der Login zeigt keinen 403-Block mehr und erreicht den Google-Kontoauswahlschritt. Google verlangt danach kontoabhängig eine Identitätsbestätigung per Telefonnummer, bevor die OAuth-Einwilligung angezeigt wird. Diese Sicherheitsprüfung kann nur der Kontoinhaber direkt bei Google abschließen; es wurde keine Telefonnummer oder Sicherheitsinformation verarbeitet.

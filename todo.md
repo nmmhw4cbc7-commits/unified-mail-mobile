@@ -138,3 +138,20 @@
 - [ ] Anhänge sicher verarbeiten und Größen-/Typgrenzen dokumentieren
 - [x] Automatisierte Tests für Provider-Adapter, Sync, Versand und OAuth-Fehler ergänzen
 - [ ] Datenschutz-, Sicherheits-, Betriebs- und Flutter-Migrationsdokumentation vervollständigen
+
+## Kritische Stabilisierung: Google, Versand und UI
+
+- [x] Google-OAuth-Consent-Screen und Testnutzer-/Publishing-Konfiguration für den tatsächlichen Login prüfen
+- [x] Versandantworten, Provider-Message-ID und Fehlerstatus dauerhaft protokollieren, damit Zustellung nachvollziehbar ist
+- [x] Versand für Gmail und Outlook mit korrekten Provider-Anforderungen und Selbsttest-Feedback reparieren
+- [ ] Alle sichtbaren Pressables auf echte Aktionen, Navigation oder bewusste Deaktivierung prüfen
+- [ ] Mobile Screens auf einheitliche Safe-Area-, Abstands-, Größen- und Tab-Bar-Regeln umstellen
+- [ ] Preview auf Desktop und schmalem Mobil-Viewport visuell prüfen und Regressionstests ergänzen
+
+## Sofortige Stabilisierung: Google, Buttons, Versand und Layout
+
+- [x] Google-OAuth-Branding, Zielgruppe und Testnutzer vollständig konfigurieren
+- [ ] Alle sichtbaren Aktionen auf echte Navigation, funktionale Mutation oder bewusst deaktivierten Zustand prüfen
+- [x] Versandstatus und Provider-Antwort für Gmail/Outlook verständlich anzeigen
+- [ ] Layoutprobleme auf den Kernscreens mit einheitlichen Safe-Area- und Abstandsregeln beheben
+- [ ] Kernflows auf Web und mobilem Portrait-Viewport regressionsprüfen

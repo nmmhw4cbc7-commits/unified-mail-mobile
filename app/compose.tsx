@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -24,15 +25,19 @@ export default function ComposeScreen() {
   const [sending, setSending] = useState(false);
   useEffect(() => { getDeviceId().then(setDeviceId).catch(() => undefined); }, []);
   useEffect(() => { if (!from && connectedAccounts[0]) setFrom(connectedAccounts[0].email); }, [connectedAccounts, from]);
+  const saveDraft = async () => {
+    await AsyncStorage.setItem("unified-mail-draft", JSON.stringify({ from, to: to.trim(), subject: subject.trim(), body: body.trim(), savedAt: new Date().toISOString() }));
+    Alert.alert("Entwurf gespeichert", "Der aktuelle Entwurf wurde auf diesem Gerät gespeichert.");
+  };
   const send = async () => {
     const account = connectedAccounts.find((item) => item.email === from);
     if (!account || !from) { Alert.alert("Kein Postfach verbunden", "Verbinde zuerst ein E-Mail-Konto, bevor du eine Nachricht verfasst."); return; }
     if (!validateComposeFields(to, subject, body)) { Alert.alert("Noch nicht vollständig", "Bitte ergänze Empfänger, Betreff und Nachricht."); return; }
     setSending(true);
     try {
-      await sendMutation.mutateAsync({ deviceId, accountId: account.id, to: to.trim(), subject: subject.trim(), body: body.trim() });
+      const result = await sendMutation.mutateAsync({ deviceId, accountId: account.id, to: to.trim(), subject: subject.trim(), body: body.trim() });
       addSentMessage({ id: `sent-${Date.now()}`, accountId: String(account.id), senderName: "Du", senderEmail: from, recipients: [to.trim()], subject: subject.trim(), preview: body.trim(), body: body.trim(), timestamp: "Jetzt", dateLabel: "Heute", unread: false, starred: false });
-      Alert.alert("Gesendet", `Deine Nachricht wurde über ${from} versendet.`, [{ text: "OK", onPress: () => router.back() }]);
+      Alert.alert("Vom Provider angenommen", `Die Nachricht wurde an ${result.provider === "gmail" ? "Gmail" : "Outlook"} übergeben. Die Zustellung beim Empfänger kann je nach Provider etwas dauern.`, [{ text: "OK", onPress: () => router.back() }]);
     } catch (error) {
       Alert.alert("Versand nicht möglich", error instanceof Error ? error.message : "Der Provider konnte die Nachricht nicht senden.");
     } finally { setSending(false); }
@@ -41,12 +46,12 @@ export default function ComposeScreen() {
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}><IconSymbol name="xmark" size={22} color={colors.foreground} /></Pressable><Text style={[styles.title, { color: colors.foreground }]}>{params.replyTo ? "Antworten" : "Neue Mail"}</Text><Pressable disabled={sending} onPress={send} style={({ pressed }) => [styles.sendButton, { backgroundColor: colors.primary }, pressed && styles.pressed]}><Text style={styles.sendText}>{sending ? "…" : "Senden"}</Text></Pressable></View>
       <View style={styles.form}>
-        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>Von</Text><Pressable onPress={() => { if (connectedAccounts.length > 1) setFrom(from === connectedAccounts[0]?.email ? connectedAccounts[1].email : connectedAccounts[0].email); }} style={({ pressed }) => [styles.accountSelect, pressed && styles.pressed]}><Text numberOfLines={1} style={[styles.value, { color: colors.foreground }]}>{from}</Text><IconSymbol name="chevron.down" size={15} color={colors.muted} /></Pressable></View>
+        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>Von</Text><Pressable disabled={connectedAccounts.length < 2} accessibilityState={{ disabled: connectedAccounts.length < 2 }} onPress={() => { if (connectedAccounts.length > 1) setFrom(from === connectedAccounts[0]?.email ? connectedAccounts[1].email : connectedAccounts[0].email); }} style={({ pressed }) => [styles.accountSelect, pressed && styles.pressed]}><Text numberOfLines={1} style={[styles.value, { color: colors.foreground }]}>{from}</Text><IconSymbol name="chevron.down" size={15} color={colors.muted} /></Pressable></View>
         <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>An</Text><TextInput value={to} onChangeText={setTo} placeholder="name@beispiel.de" placeholderTextColor={colors.muted} autoCapitalize="none" keyboardType="email-address" style={[styles.input, { color: colors.foreground }]} /></View>
         <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>Betreff</Text><TextInput value={subject} onChangeText={setSubject} placeholder="Betreff" placeholderTextColor={colors.muted} style={[styles.input, { color: colors.foreground }]} /></View>
         <TextInput value={body} onChangeText={setBody} placeholder="Nachricht schreiben …" placeholderTextColor={colors.muted} multiline textAlignVertical="top" style={[styles.bodyInput, { color: colors.foreground }]} />
       </View>
-      <View style={[styles.bottomBar, { borderTopColor: colors.border }]}><Pressable style={({ pressed }) => [styles.bottomAction, pressed && styles.pressed]}><IconSymbol name="paperclip" size={21} color={colors.muted} /><Text style={[styles.bottomLabel, { color: colors.muted }]}>Anhang</Text></Pressable><Pressable style={({ pressed }) => [styles.bottomAction, pressed && styles.pressed]}><IconSymbol name="doc" size={21} color={colors.muted} /><Text style={[styles.bottomLabel, { color: colors.muted }]}>Entwurf speichern</Text></Pressable></View>
+      <View style={[styles.bottomBar, { borderTopColor: colors.border }]}><View style={styles.bottomAction}><IconSymbol name="paperclip" size={21} color={colors.muted} /><Text style={[styles.bottomLabel, { color: colors.muted }]}>Anhänge folgen</Text></View><Pressable accessibilityRole="button" onPress={saveDraft} style={({ pressed }) => [styles.bottomAction, pressed && styles.pressed]}><IconSymbol name="doc" size={21} color={colors.primary} /><Text style={[styles.bottomLabel, { color: colors.foreground }]}>Entwurf speichern</Text></Pressable></View>
     </KeyboardAvoidingView>
   </ScreenContainer>;
 }
