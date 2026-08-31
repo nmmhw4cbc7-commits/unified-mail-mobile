@@ -120,7 +120,7 @@
 
 ## Aktueller Verbindungs- und Inbox-Fehler
 
-- [ ] Verbundenes Outlook-Konto als echte Inbox-Quelle statt statischer leerer Kontenliste verwenden
-- [ ] Nach erfolgreicher OAuth-Verbindung Konten und Inbox automatisch neu laden
-- [ ] Google-403-Status für nicht abgeschlossene OAuth-Verifizierung verständlich behandeln und dokumentieren
+- [x] Verbundenes Outlook-Konto als echte Inbox-Quelle statt statischer leerer Kontenliste verwenden
+- [x] Nach erfolgreicher OAuth-Verbindung Konten und Inbox automatisch neu laden
+- [x] Google-403-Status für nicht abgeschlossene OAuth-Verifizierung verständlich behandeln und dokumentieren
 - [ ] Alle geprüften Änderungen in den bestehenden GitHub-main-Branch pushen
