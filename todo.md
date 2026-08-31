@@ -191,3 +191,12 @@
 - [x] Verschachtelte Karten, stereotype Grids, dekorative Animationen und Blink-/Puls-Effekte ausschließen
 - [x] Sachliche Copy ohne Buzzwords, Emojis, Gedankenstrich-Kaskaden und dramatische Formulierungen sicherstellen
 - [ ] No-Go-Review auf mobilen Screens mit TypeScript, Tests und Preview-Prüfung abschließen
+
+## Inbox- und Einstellungsfehler
+
+- [x] Mailzeile öffnet die exakt angeklickte Maildetailansicht zuverlässig
+- [x] Rechts-Swipe auf einer Inbox-Mail verschiebt sie sichtbar in den Papierkorb
+- [x] Filterkarten zeigen „E-Mail-Adresse (Anbieter)“ statt getrennte Angaben
+- [x] Anbieterfarben als eigener Einstellungsmenüpunkt mit nachgelagerter Auswahl öffnen
+- [x] Benachrichtigungs-Schalter vertikal mittig ausrichten
+- [x] Wortmarke überall als „Unified Mail“ schreiben
