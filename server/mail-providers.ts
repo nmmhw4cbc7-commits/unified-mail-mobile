@@ -3,11 +3,7 @@ import { createMailOAuthState } from "./mail-security";
 export type MailProvider = "gmail" | "outlook";
 
 export function getRedirectUri(req: { protocol: string; get: (name: string) => string | undefined }) {
-  const forwardedProto = req.get("x-forwarded-proto") ?? req.protocol;
-  const forwardedHost = req.get("x-forwarded-host") ?? req.get("host");
-  if (!forwardedHost) throw new Error("OAuth redirect host is unavailable");
-  const stableBaseUrl = process.env.MAIL_OAUTH_BASE_URL ?? "https://unimailapp-aje7zwqe.manus.space";
-  return `${stableBaseUrl}/api/mail/oauth/callback`;
+  return "https://unimailapp-aje7zwqe.manus.space/api/mail/oauth/callback";
 }
 
 export async function createOAuthRequest(provider: MailProvider, req: { protocol: string; get: (name: string) => string | undefined }, userId: number) {

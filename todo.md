@@ -16,7 +16,7 @@
 
 ## Erweiterung: Ready-to-use und Flutter-Migration
 
-- [ ] Provider-OAuth-Konfigurationen und sichere Secret-Verwaltung für Gmail/Microsoft 365
+- [x] Provider-OAuth-Konfigurationen und sichere Secret-Verwaltung für Gmail/Microsoft 365
 - [ ] Backend-Konto-Modell und verschlüsselte Token-Ablage
 - [ ] Backend-Synchronisation für Nachrichten, Ordner, Labels und Lesestatus
 - [ ] Reale Versand-API und Provider-spezifische Fehlerbehandlung
@@ -59,7 +59,7 @@
 - [x] Erstverbindung darf nicht an eine vorherige interne App-Anmeldung gebunden sein
 - [x] Signierten Erstverbindungszustand mit sicherer lokaler Nutzeridentität implementieren
 - [x] OAuth-Callback für Google und Outlook ohne unverständlichen Login-Fehler abschließen
-- [ ] Mobile Rückkehr nach erfolgreicher Verbindung und Kontenaktualisierung herstellen
+- [x] Mobile Rückkehr nach erfolgreicher Verbindung und Kontenaktualisierung herstellen
 - [ ] Regressionstest für nicht angemeldeten Erststart und Fehler 1001 ergänzen
 
 ## Google-Redirect, Provider und Inbox-Empty-State
@@ -94,3 +94,26 @@
 - [x] Keine Beispielnachrichten im Erststart inklusive AsyncStorage-Migration
 - [x] Inbox-Logo links, Account-Aktion rechts und zentraler Empty State verifizieren
 - [x] Alle Prüfungen ausführen und geprüften Stand nach GitHub pushen
+
+## Konkrete OAuth-Fehler
+
+- [ ] Google `redirect_uri_mismatch` mit der tatsächlich verwendeten URI beheben
+- [x] Microsoft `unauthorized_client` durch korrekte Client-ID und unterstützten Kontotyp beheben
+- [x] Provider-Fehler im Callback mit verständlichen nächsten Schritten anzeigen
+- [x] OAuth-Start-URLs und Token-Exchange-URLs automatisiert testen
+- [ ] Geprüften OAuth-Fix nach GitHub pushen
+
+## Nächster Integrationsschritt: echte Nachrichten-Synchronisation
+
+- [ ] Provider-Token sicher entschlüsseln und bei Bedarf per Refresh-Token erneuern
+- [ ] Gmail-Posteingang über Gmail API abrufen und in ein gemeinsames Mailmodell normalisieren
+- [ ] Microsoft-Posteingang über Microsoft Graph abrufen und in dasselbe Mailmodell normalisieren
+- [ ] Synchronisierte Nachrichten serverseitig speichern und dem mobilen Inbox-Flow bereitstellen
+- [ ] Sync-Fehler, abgelaufene Berechtigungen und leere Konten verständlich behandeln
+
+## Verbindungsproblem nach Microsoft-Anmeldung
+
+- [x] Microsoft-Callback-Fehler in eine konkrete, nutzerlesbare Meldung übersetzen
+- [x] Nach erfolgreicher Verbindung eine sichere Rückkehr in die App und Kontenaktualisierung herstellen
+- [x] Abgebrochene oder fehlgeschlagene Microsoft-Anmeldung ohne hängenbleibenden Zustand behandeln
+- [x] Outlook-Verbindungsflow ohne echte Zugangsdaten automatisiert regressionsprüfen

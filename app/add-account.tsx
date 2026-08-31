@@ -23,6 +23,8 @@ export default function AddAccountScreen() {
       const deviceId = await getDeviceId();
       const result = await oauthStart.mutateAsync({ provider: providerId, deviceId });
       await WebBrowser.openBrowserAsync(result.authorizationUrl);
+      router.replace("/accounts");
+      Alert.alert("Verbindung prüfen", "Wenn Microsoft die Anmeldung bestätigt hat, aktualisiere die Kontenansicht. Bei einer abgebrochenen Anmeldung kannst du es erneut versuchen.");
     } catch (error) {
       Alert.alert("Verbindung nicht möglich", error instanceof Error ? error.message : "Die Verbindung konnte nicht gestartet werden. Bitte versuche es erneut.");
     }
