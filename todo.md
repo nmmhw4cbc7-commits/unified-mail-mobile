@@ -182,3 +182,12 @@
 - [x] Letzten erfolgreichen Sync-Zeitpunkt bei erfolgreicher Kontosynchronisation speichern
 - [x] Sync-Zeitpunkt klein am unteren Ende der Einstellungen statt als Menüpunkt anzeigen
 - [ ] Theme-Wechsel und Zeitstempel auf mobilem Portrait-Viewport prüfen
+
+## No-Go-UI-Review
+
+- [x] No-Go-Liste gegen Typography, Farben, Flächen, Layout, Motion, Copy und Icons prüfen
+- [x] Eyebrows, All-Caps-Kicker, extreme Letter-Abstände und unnötige Serif-/Hero-Muster entfernen
+- [x] Gradients, Glows, Glassmorphism, farbige Seitenränder, breite Schatten und extreme Radien ausschließen
+- [x] Verschachtelte Karten, stereotype Grids, dekorative Animationen und Blink-/Puls-Effekte ausschließen
+- [x] Sachliche Copy ohne Buzzwords, Emojis, Gedankenstrich-Kaskaden und dramatische Formulierungen sicherstellen
+- [ ] No-Go-Review auf mobilen Screens mit TypeScript, Tests und Preview-Prüfung abschließen
