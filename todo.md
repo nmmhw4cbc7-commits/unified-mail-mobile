@@ -164,3 +164,13 @@
 - [x] Maildetail mit vollständigem Betreff, Absenderadresse, Empfänger, Datum und Text lesbar darstellen
 - [x] Beim Öffnen einer Mail den Lesestatus lokal und serverseitig aktualisieren
 - [x] Versand sofort mit Provider-Annahme-Status bestätigen und keine falsche Zustellgarantie anzeigen
+
+## Ordner und Anbieter-Tags
+
+- [x] Anbieter-Tag mit Anbietername und konfigurierbarer Farbe an jeder Mail anzeigen
+- [x] Anbieterfarben in den Einstellungen editierbar und lokal speichern
+- [x] Gemeinsames Ordner-Modell für Posteingang, Gesendet, Papierkorb, Spam und Werbung ergänzen
+- [x] Linkes Ordner-Menü ausfahrbar machen und Ordnerauswahl mit Inbox verknüpfen
+- [x] Rechts-Swipe einer Mail als Löschen in den Papierkorb umsetzen
+- [x] Drei-Punkte-Menü in der Maildetailansicht um „Verschieben nach …“ erweitern
+- [ ] Provider-Ordner-Mapping für Gmail und Microsoft Graph dokumentieren und testen

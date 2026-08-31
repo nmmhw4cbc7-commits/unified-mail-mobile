@@ -11,6 +11,8 @@ type MailStoreValue = {
   markRead: (id: string) => void;
   toggleStar: (id: string) => void;
   addSentMessage: (message: MailMessage) => void;
+  moveToTrash: (id: string) => void;
+  moveToFolder: (id: string, folder: NonNullable<MailMessage["folder"]>) => void;
 };
 
 const MailStoreContext = createContext<MailStoreValue | null>(null);
@@ -25,6 +27,7 @@ function mapRemoteMessage(message: any): MailMessage {
   let labels: string[] = [];
   try { recipients = JSON.parse(message.recipientsJson); } catch { recipients = []; }
   try { labels = JSON.parse(message.labelsJson); } catch { labels = []; }
+  const folder = labels.includes("TRASH") ? "trash" : labels.includes("SPAM") ? "spam" : labels.includes("CATEGORY_PROMOTIONS") ? "promotions" : labels.includes("SENT") ? "sent" : "inbox";
   return {
     id: `server-${message.id}`,
     accountId: String(message.accountId),
@@ -39,6 +42,7 @@ function mapRemoteMessage(message: any): MailMessage {
     unread: Boolean(message.unread),
     starred: Boolean(message.starred),
     hasAttachment: Boolean(message.hasAttachment) || labels.includes("ATTACHMENT"),
+    folder,
   };
 }
 
@@ -81,6 +85,12 @@ export function MailStoreProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, [accountQuery.data, deviceId]);
 
+  const remoteMessages = useMemo(() => (remoteQuery.data ?? []).map(mapRemoteMessage), [remoteQuery.data]);
+  const messages = useMemo(() => {
+    const combined = [...remoteMessages, ...mailMessages];
+    return Array.from(new Map(combined.map((mail) => [mail.id, mail])).values());
+  }, [mailMessages, remoteMessages]);
+
   const markRead = useCallback((id: string) => {
     setMailMessages((current) => current.some((mail) => mail.id === id && mail.unread) ? current.map((mail) => mail.id === id ? { ...mail, unread: false } : mail) : current);
     if (id.startsWith("server-") && deviceId.length >= 16) updateStatusMutation.mutate({ deviceId, messageId: Number(id.replace("server-", "")), unread: false });
@@ -93,12 +103,13 @@ export function MailStoreProvider({ children }: { children: ReactNode }) {
     });
   }, [deviceId, updateStatusMutation]);
   const addSentMessage = useCallback((message: MailMessage) => setMailMessages((current) => [message, ...current]), []);
-  const remoteMessages = useMemo(() => (remoteQuery.data ?? []).map(mapRemoteMessage), [remoteQuery.data]);
-  const messages = useMemo(() => {
-    const combined = [...mailMessages, ...remoteMessages];
-    return Array.from(new Map(combined.map((mail) => [mail.id, mail])).values());
-  }, [mailMessages, remoteMessages]);
-  const value = useMemo(() => ({ messages, markRead, toggleStar, addSentMessage }), [messages, markRead, toggleStar, addSentMessage]);
+  const moveToFolder = useCallback((id: string, folder: NonNullable<MailMessage["folder"]>) => setMailMessages((current) => {
+    const existing = current.find((mail) => mail.id === id);
+    const fallback = existing ?? messages.find((mail) => mail.id === id);
+    return fallback ? [...current.filter((mail) => mail.id !== id), { ...fallback, folder, unread: folder === "trash" ? false : fallback.unread }] : current;
+  }), [messages]);
+  const moveToTrash = useCallback((id: string) => moveToFolder(id, "trash"), [moveToFolder]);
+  const value = useMemo(() => ({ messages, markRead, toggleStar, addSentMessage, moveToTrash, moveToFolder }), [messages, markRead, toggleStar, addSentMessage, moveToTrash, moveToFolder]);
 
   return <MailStoreContext.Provider value={value}>{children}</MailStoreContext.Provider>;
 }

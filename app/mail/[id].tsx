@@ -12,7 +12,7 @@ import { useColors } from "@/hooks/use-colors";
 export default function MailDetailScreen() {
   const colors = useColors();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { messages, markRead, toggleStar } = useMailStore();
+  const { messages, markRead, toggleStar, moveToFolder } = useMailStore();
   const [deviceId, setDeviceId] = useState("");
   const accountQuery = trpc.mail.accounts.useQuery({ deviceId }, { enabled: deviceId.length >= 16 });
   useEffect(() => { getDeviceId().then(setDeviceId).catch(() => undefined); }, []);
@@ -27,7 +27,7 @@ export default function MailDetailScreen() {
     <View style={[styles.topBar, { borderBottomColor: colors.border }]}>
       <Pressable accessibilityLabel="Zurück" onPress={() => router.back()} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}><IconSymbol name="chevron.left" size={25} color={colors.foreground} /></Pressable>
       <Text style={[styles.topTitle, { color: colors.foreground }]}>Nachricht</Text>
-      <Pressable accessibilityLabel="Mehr Optionen" onPress={() => Alert.alert("Weitere Optionen", "Zusätzliche Nachrichtenaktionen werden nach der Provider-Synchronisation ergänzt.")} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}><IconSymbol name="ellipsis" size={22} color={colors.foreground} /></Pressable>
+      <Pressable accessibilityLabel="Mehr Optionen" onPress={() => Alert.alert("Mail verschieben", "Wohin soll diese Mail verschoben werden?", [{ text: "Posteingang", onPress: () => moveToFolder(mail.id, "inbox") }, { text: "Gesendet", onPress: () => moveToFolder(mail.id, "sent") }, { text: "Papierkorb", style: "destructive", onPress: () => moveToFolder(mail.id, "trash") }, { text: "Spam", onPress: () => moveToFolder(mail.id, "spam") }, { text: "Werbung", onPress: () => moveToFolder(mail.id, "promotions") }, { text: "Abbrechen", style: "cancel" }])} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}><IconSymbol name="ellipsis" size={22} color={colors.foreground} /></Pressable>
     </View>
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.subjectRow}><Text style={[styles.subject, { color: colors.foreground }]}>{mail.subject}</Text><Pressable accessibilityLabel="Favorit umschalten" onPress={() => toggleStar(mail.id)} style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}><IconSymbol name={mail.starred ? "star.fill" : "star"} size={21} color={mail.starred ? "#E2A62C" : colors.muted} /></Pressable></View>

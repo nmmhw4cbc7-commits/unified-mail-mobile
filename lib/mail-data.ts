@@ -24,6 +24,7 @@ export type MailMessage = {
   unread: boolean;
   starred: boolean;
   hasAttachment?: boolean;
+  folder?: "inbox" | "sent" | "trash" | "spam" | "promotions";
 };
 
 /** Nutzerbezogene Daten werden nach einer erfolgreichen Provider-Verbindung geladen. */
