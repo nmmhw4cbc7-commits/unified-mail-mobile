@@ -105,10 +105,10 @@
 
 ## Nächster Integrationsschritt: echte Nachrichten-Synchronisation
 
-- [ ] Provider-Token sicher entschlüsseln und bei Bedarf per Refresh-Token erneuern
-- [ ] Gmail-Posteingang über Gmail API abrufen und in ein gemeinsames Mailmodell normalisieren
-- [ ] Microsoft-Posteingang über Microsoft Graph abrufen und in dasselbe Mailmodell normalisieren
-- [ ] Synchronisierte Nachrichten serverseitig speichern und dem mobilen Inbox-Flow bereitstellen
+- [x] Provider-Token sicher entschlüsseln und bei Bedarf per Refresh-Token erneuern
+- [x] Gmail-Posteingang über Gmail API abrufen und in ein gemeinsames Mailmodell normalisieren
+- [x] Microsoft-Posteingang über Microsoft Graph abrufen und in dasselbe gemeinsame Mailmodell normalisieren
+- [x] Synchronisierte Nachrichten serverseitig speichern und dem mobilen Inbox-Flow bereitstellen
 - [ ] Sync-Fehler, abgelaufene Berechtigungen und leere Konten verständlich behandeln
 
 ## Verbindungsproblem nach Microsoft-Anmeldung
@@ -124,3 +124,17 @@
 - [x] Nach erfolgreicher OAuth-Verbindung Konten und Inbox automatisch neu laden
 - [x] Google-403-Status für nicht abgeschlossene OAuth-Verifizierung verständlich behandeln und dokumentieren
 - [ ] Alle geprüften Änderungen in den bestehenden GitHub-main-Branch pushen
+
+## Ready-to-use-Ausbau
+
+- [x] Nachrichten-Tabelle mit Provider-ID, Konto-ID, Thread, Absendern, Inhalt, Labels, Anhängen und Zeitstempeln ergänzen
+- [x] Zugriffstoken serverseitig entschlüsseln und abgelaufene Tokens sicher erneuern
+- [x] Gmail-Posteingang abrufen, normalisieren, deduplizieren und speichern
+- [x] Microsoft-Posteingang über Microsoft Graph abrufen, normalisieren, deduplizieren und speichern
+- [x] Mobile Inbox aus synchronisierten Nachrichten und dynamischen Konten aufbauen
+- [ ] Nachrichten lesen, als gelesen markieren und Favoriten serverseitig synchronisieren
+- [x] Gmail- und Microsoft-Versand mit Reply/Forward-Unterstützung implementieren
+- [ ] Provider- und Netzwerkfehler mit Retry, Reconnect-Hinweis und verständlicher UI behandeln
+- [ ] Anhänge sicher verarbeiten und Größen-/Typgrenzen dokumentieren
+- [x] Automatisierte Tests für Provider-Adapter, Sync, Versand und OAuth-Fehler ergänzen
+- [ ] Datenschutz-, Sicherheits-, Betriebs- und Flutter-Migrationsdokumentation vervollständigen

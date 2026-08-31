@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { accounts } from "@/lib/mail-data";
+import { getDeviceId } from "@/lib/device-identity";
+import { trpc } from "@/lib/trpc";
 import { useMailStore } from "@/lib/mail-store";
 import { validateComposeFields } from "@/lib/compose-utils";
 import { useColors } from "@/hooks/use-colors";
@@ -12,28 +13,35 @@ export default function ComposeScreen() {
   const colors = useColors();
   const params = useLocalSearchParams<{ replyTo?: string; subject?: string }>();
   const { addSentMessage } = useMailStore();
-  const [from, setFrom] = useState(accounts[0]?.email ?? "");
+  const [deviceId, setDeviceId] = useState("");
+  const accountQuery = trpc.mail.accounts.useQuery({ deviceId }, { enabled: deviceId.length >= 16 });
+  const sendMutation = trpc.mail.send.useMutation();
+  const connectedAccounts = accountQuery.data ?? [];
+  const [from, setFrom] = useState("");
   const [to, setTo] = useState(params.replyTo ?? "");
   const [subject, setSubject] = useState(params.subject ?? "");
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
-  const send = () => {
-    if (accounts.length === 0 || !from) { Alert.alert("Kein Postfach verbunden", "Verbinde zuerst ein E-Mail-Konto, bevor du eine Nachricht verfasst."); return; }
+  useEffect(() => { getDeviceId().then(setDeviceId).catch(() => undefined); }, []);
+  useEffect(() => { if (!from && connectedAccounts[0]) setFrom(connectedAccounts[0].email); }, [connectedAccounts, from]);
+  const send = async () => {
+    const account = connectedAccounts.find((item) => item.email === from);
+    if (!account || !from) { Alert.alert("Kein Postfach verbunden", "Verbinde zuerst ein E-Mail-Konto, bevor du eine Nachricht verfasst."); return; }
     if (!validateComposeFields(to, subject, body)) { Alert.alert("Noch nicht vollständig", "Bitte ergänze Empfänger, Betreff und Nachricht."); return; }
     setSending(true);
-    setTimeout(() => {
-      const account = accounts.find((item) => item.email === from);
-      if (!account) { setSending(false); return; }
-      addSentMessage({ id: `sent-${Date.now()}`, accountId: account.id, senderName: "Du", senderEmail: from, recipients: [to.trim()], subject: subject.trim(), preview: body.trim(), body: body.trim(), timestamp: "Jetzt", dateLabel: "Heute", unread: false, starred: false });
-      setSending(false);
+    try {
+      await sendMutation.mutateAsync({ deviceId, accountId: account.id, to: to.trim(), subject: subject.trim(), body: body.trim() });
+      addSentMessage({ id: `sent-${Date.now()}`, accountId: String(account.id), senderName: "Du", senderEmail: from, recipients: [to.trim()], subject: subject.trim(), preview: body.trim(), body: body.trim(), timestamp: "Jetzt", dateLabel: "Heute", unread: false, starred: false });
       Alert.alert("Gesendet", `Deine Nachricht wurde über ${from} versendet.`, [{ text: "OK", onPress: () => router.back() }]);
-    }, 500);
+    } catch (error) {
+      Alert.alert("Versand nicht möglich", error instanceof Error ? error.message : "Der Provider konnte die Nachricht nicht senden.");
+    } finally { setSending(false); }
   };
   return <ScreenContainer edges={["top", "left", "right", "bottom"]}>
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}><IconSymbol name="xmark" size={22} color={colors.foreground} /></Pressable><Text style={[styles.title, { color: colors.foreground }]}>{params.replyTo ? "Antworten" : "Neue Mail"}</Text><Pressable disabled={sending} onPress={send} style={({ pressed }) => [styles.sendButton, { backgroundColor: colors.primary }, pressed && styles.pressed]}><Text style={styles.sendText}>{sending ? "…" : "Senden"}</Text></Pressable></View>
       <View style={styles.form}>
-        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>Von</Text><Pressable onPress={() => { if (accounts.length > 1) setFrom(from === accounts[0]?.email ? accounts[1].email : accounts[0].email); }} style={({ pressed }) => [styles.accountSelect, pressed && styles.pressed]}><Text numberOfLines={1} style={[styles.value, { color: colors.foreground }]}>{from}</Text><IconSymbol name="chevron.down" size={15} color={colors.muted} /></Pressable></View>
+        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>Von</Text><Pressable onPress={() => { if (connectedAccounts.length > 1) setFrom(from === connectedAccounts[0]?.email ? connectedAccounts[1].email : connectedAccounts[0].email); }} style={({ pressed }) => [styles.accountSelect, pressed && styles.pressed]}><Text numberOfLines={1} style={[styles.value, { color: colors.foreground }]}>{from}</Text><IconSymbol name="chevron.down" size={15} color={colors.muted} /></Pressable></View>
         <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>An</Text><TextInput value={to} onChangeText={setTo} placeholder="name@beispiel.de" placeholderTextColor={colors.muted} autoCapitalize="none" keyboardType="email-address" style={[styles.input, { color: colors.foreground }]} /></View>
         <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>Betreff</Text><TextInput value={subject} onChangeText={setSubject} placeholder="Betreff" placeholderTextColor={colors.muted} style={[styles.input, { color: colors.foreground }]} /></View>
         <TextInput value={body} onChangeText={setBody} placeholder="Nachricht schreiben …" placeholderTextColor={colors.muted} multiline textAlignVertical="top" style={[styles.bodyInput, { color: colors.foreground }]} />

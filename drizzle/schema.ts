@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, uniqueIndex } from "drizzle-orm/mysql-core";
+import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, varchar, uniqueIndex, index } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -40,3 +40,26 @@ export const mailAccounts = mysqlTable("mail_accounts", {
 
 export type MailAccount = typeof mailAccounts.$inferSelect;
 export type InsertMailAccount = typeof mailAccounts.$inferInsert;
+
+export const mailMessages = mysqlTable("mail_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  accountId: int("accountId").notNull(),
+  providerMessageId: varchar("providerMessageId", { length: 512 }).notNull(),
+  threadId: varchar("threadId", { length: 512 }),
+  senderName: varchar("senderName", { length: 255 }),
+  senderEmail: varchar("senderEmail", { length: 320 }).notNull(),
+  recipientsJson: text("recipientsJson").notNull(),
+  subject: varchar("subject", { length: 998 }).notNull(),
+  preview: text("preview").notNull(),
+  body: text("body").notNull(),
+  receivedAt: timestamp("receivedAt").notNull(),
+  unread: boolean("unread").default(true).notNull(),
+  starred: boolean("starred").default(false).notNull(),
+  hasAttachment: boolean("hasAttachment").default(false).notNull(),
+  labelsJson: text("labelsJson").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({ accountProviderMessageIdx: uniqueIndex("mail_messages_account_provider_message_idx").on(table.accountId, table.providerMessageId), accountReceivedIdx: index("mail_messages_account_received_idx").on(table.accountId, table.receivedAt) }));
+
+export type MailMessage = typeof mailMessages.$inferSelect;
+export type InsertMailMessage = typeof mailMessages.$inferInsert;

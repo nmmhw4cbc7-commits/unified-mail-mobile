@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, mailAccounts, users, type InsertMailAccount } from "../drizzle/schema";
+import { InsertUser, mailAccounts, mailMessages, users, type InsertMailAccount, type InsertMailMessage } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -106,4 +106,23 @@ export async function getMailAccountForUser(id: number, userId: number) {
   if (!db) return undefined;
   const result = await db.select().from(mailAccounts).where(and(eq(mailAccounts.id, id), eq(mailAccounts.userId, userId))).limit(1);
   return result[0];
+}
+
+export async function listMailMessages(userId: number, accountId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ message: mailMessages, account: mailAccounts }).from(mailMessages).innerJoin(mailAccounts, eq(mailMessages.accountId, mailAccounts.id)).where(accountId ? and(eq(mailAccounts.userId, userId), eq(mailMessages.accountId, accountId)) : eq(mailAccounts.userId, userId)).orderBy(mailMessages.receivedAt);
+  return rows.map(({ message, account }) => ({ ...message, accountId: String(message.accountId), account: { id: String(account.id), email: account.email, displayName: account.displayName, provider: account.provider } }));
+}
+
+export async function upsertMailMessage(message: InsertMailMessage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(mailMessages).values(message).onDuplicateKeyUpdate({ set: { threadId: message.threadId, senderName: message.senderName, senderEmail: message.senderEmail, recipientsJson: message.recipientsJson, subject: message.subject, preview: message.preview, body: message.body, receivedAt: message.receivedAt, unread: message.unread, hasAttachment: message.hasAttachment, labelsJson: message.labelsJson, updatedAt: new Date() } });
+}
+
+export async function updateMailAccountTokens(id: number, tokens: Pick<InsertMailAccount, "encryptedAccessToken" | "encryptedRefreshToken" | "tokenExpiresAt">) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(mailAccounts).set({ ...tokens, updatedAt: new Date() }).where(eq(mailAccounts.id, id));
 }
