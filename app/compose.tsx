@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
@@ -9,6 +9,8 @@ import { trpc } from "@/lib/trpc";
 import { useMailStore } from "@/lib/mail-store";
 import { validateComposeFields } from "@/lib/compose-utils";
 import { useColors } from "@/hooks/use-colors";
+import { SkeuomorphicInput } from "@/components/ui/skeuomorphic-input";
+import { SkeuomorphicButton } from "@/components/ui/skeuomorphic";
 
 export default function ComposeScreen() {
   const colors = useColors();
@@ -36,23 +38,40 @@ export default function ComposeScreen() {
     setSending(true);
     try {
       const result = await sendMutation.mutateAsync({ deviceId, accountId: account.id, to: to.trim(), subject: subject.trim(), body: body.trim() });
-      addSentMessage({ id: `sent-${Date.now()}`, accountId: String(account.id), senderName: "Du", senderEmail: from, recipients: [to.trim()], subject: subject.trim(), preview: body.trim(), body: body.trim(), timestamp: "Jetzt", dateLabel: "Heute", unread: false, starred: false });
-      Alert.alert("Vom Provider angenommen", `Die Nachricht wurde an ${result.provider === "gmail" ? "Gmail" : "Outlook"} übergeben. Die Zustellung beim Empfänger kann je nach Provider etwas dauern.`, [{ text: "OK", onPress: () => router.back() }]);
+      addSentMessage({ id: `sent-${Date.now()}`, accountId: String(account.id), senderName: "Du", senderEmail: from, recipients: [to.trim()], subject: subject.trim(), preview: body.trim(), body: body.trim(), sentAt: new Date().toISOString() });
+      Alert.alert("Vom Provider angenommen", `Die Nachricht wurde an ${result.provider === "gmail" ? "Gmail" : "Outlook"} übergeben. Die Zustellung beim Empfänger kann je nach Provider etwas dauern.`);
+      router.back();
     } catch (error) {
       Alert.alert("Versand nicht möglich", error instanceof Error ? error.message : "Der Provider konnte die Nachricht nicht senden.");
     } finally { setSending(false); }
   };
   return <ScreenContainer edges={["top", "left", "right", "bottom"]}>
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}><Pressable onPress={() => router.back()} style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}><IconSymbol name="xmark" size={22} color={colors.foreground} /></Pressable><Text style={[styles.title, { color: colors.foreground }]}>{params.replyTo ? "Antworten" : "Neue Mail"}</Text><Pressable disabled={sending} onPress={send} style={({ pressed }) => [styles.sendButton, { backgroundColor: colors.primary }, pressed && styles.pressed]}><Text style={styles.sendText}>{sending ? "…" : "Senden"}</Text></Pressable></View>
-      <View style={styles.form}>
-        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>Von</Text><Pressable disabled={connectedAccounts.length < 2} accessibilityState={{ disabled: connectedAccounts.length < 2 }} onPress={() => { if (connectedAccounts.length > 1) setFrom(from === connectedAccounts[0]?.email ? connectedAccounts[1].email : connectedAccounts[0].email); }} style={({ pressed }) => [styles.accountSelect, pressed && styles.pressed]}><Text numberOfLines={1} style={[styles.value, { color: colors.foreground }]}>{from}</Text><IconSymbol name="chevron.down" size={15} color={colors.muted} /></Pressable></View>
-        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>An</Text><TextInput value={to} onChangeText={setTo} placeholder="name@beispiel.de" placeholderTextColor={colors.muted} autoCapitalize="none" keyboardType="email-address" style={[styles.input, { color: colors.foreground }]} /></View>
-        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}><Text style={[styles.label, { color: colors.muted }]}>Betreff</Text><TextInput value={subject} onChangeText={setSubject} placeholder="Betreff" placeholderTextColor={colors.muted} style={[styles.input, { color: colors.foreground }]} /></View>
-        <TextInput value={body} onChangeText={setBody} placeholder="Nachricht schreiben …" placeholderTextColor={colors.muted} multiline textAlignVertical="top" style={[styles.bodyInput, { color: colors.foreground }]} />
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <SkeuomorphicButton title="Zurück" onPress={() => router.back()} style={styles.headerButton} />
+        <Text style={[styles.headerTitle, { color: colors.foreground }]}>Verfassen</Text>
+        <SkeuomorphicButton title="Speichern" onPress={saveDraft} style={styles.headerButton} />
       </View>
-      <View style={[styles.bottomBar, { borderTopColor: colors.border }]}><View style={styles.bottomAction}><IconSymbol name="paperclip" size={21} color={colors.muted} /><Text style={[styles.bottomLabel, { color: colors.muted }]}>Anhänge folgen</Text></View><Pressable accessibilityRole="button" onPress={saveDraft} style={({ pressed }) => [styles.bottomAction, pressed && styles.pressed]}><IconSymbol name="doc" size={21} color={colors.primary} /><Text style={[styles.bottomLabel, { color: colors.foreground }]}>Entwurf speichern</Text></Pressable></View>
+      <View style={styles.form}>
+        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.label, { color: colors.muted }]}>Von</Text>
+          <SkeuomorphicInput value={from} onChangeText={setFrom} placeholder="Absender" />
+        </View>
+        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.label, { color: colors.muted }]}>An</Text>
+          <SkeuomorphicInput value={to} onChangeText={setTo} placeholder="to@example.com" keyboardType="email-address" />
+        </View>
+        <View style={[styles.fieldRow, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.label, { color: colors.muted }]}>Betreff</Text>
+          <SkeuomorphicInput value={subject} onChangeText={setSubject} placeholder="Betreff" />
+        </View>
+        <SkeuomorphicInput value={body} onChangeText={setBody} placeholder="Nachricht schreiben …" multiline style={{ height: 160 }} />
+      </View>
+      <View style={[styles.bottomBar, { borderTopColor: colors.border }]}>
+        <SkeuomorphicButton title="Anhang" onPress={() => Alert.alert("Anhang", "Anhänge werden in Kürze unterstützt.")} style={styles.bottomAction} />
+        <SkeuomorphicButton title={sending ? "Senden…" : "Senden"} onPress={send} style={styles.sendButton} />
+      </View>
     </KeyboardAvoidingView>
   </ScreenContainer>;
 }
-const styles = StyleSheet.create({ flex: { flex: 1 }, header: { height: 58, borderBottomWidth: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16 }, headerButton: { width: 42, height: 42, justifyContent: "center" }, title: { fontWeight: "800", fontSize: 16 }, sendButton: { paddingHorizontal: 15, paddingVertical: 9, borderRadius: 9 }, sendText: { color: "#FFF", fontWeight: "800", fontSize: 13 }, form: { paddingHorizontal: 20, flex: 1 }, fieldRow: { minHeight: 54, flexDirection: "row", alignItems: "center", borderBottomWidth: 1, gap: 14 }, label: { width: 43, fontSize: 14 }, value: { flex: 1, fontSize: 14 }, accountSelect: { flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, input: { flex: 1, fontSize: 15, paddingVertical: 14 }, bodyInput: { flex: 1, fontSize: 16, lineHeight: 25, paddingTop: 20 }, bottomBar: { borderTopWidth: 1, flexDirection: "row", padding: 14, gap: 22 }, bottomAction: { flexDirection: "row", alignItems: "center", gap: 7 }, bottomLabel: { fontSize: 12 }, pressed: { opacity: 0.65, transform: [{ scale: 0.98 }] } });
+const styles = StyleSheet.create({ flex: { flex: 1 }, header: { height: 58, borderBottomWidth: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16 }, headerButton: { width: 110 }, headerTitle: { fontSize: 16, fontWeight: "700" }, form: { padding: 16, flex: 1 }, fieldRow: { paddingVertical: 8, borderBottomWidth: 1 }, label: { fontSize: 12, marginBottom: 6 }, bodyInput: { flex: 1 }, bottomBar: { height: 72, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16 }, bottomAction: { flex: 1, marginRight: 12 }, sendButton: { width: 140 } });
